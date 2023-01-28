@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('bayar')->default(0);
             $table->integer('diterima')->default(0);
             $table->unsignedBigInteger('id_user')->nullable();
-            $table->foreign('id_user')->references("id")->on("users")->onDelete("null");
+            $table->foreign('id_user')->references("id")->on("users")->nullOnDelete();
             $table->timestamps();
         });
     }

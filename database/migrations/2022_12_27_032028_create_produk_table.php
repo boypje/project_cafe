@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('produk', function (Blueprint $table) {
             $table->id('id_produk');
             $table->unsignedBigInteger("id_category")->nullable();
-            $table->foreign('id_category')->references('id_category')->on('category')->onDelete("null");;
+            $table->foreign('id_category')->references('id_category')->on('category')->nullOnDelete();
             $table->string('nama_produk')->unique();
             $table->integer('harga_beli');
             $table->integer('harga_jual');
