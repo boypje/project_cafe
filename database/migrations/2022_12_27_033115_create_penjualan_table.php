@@ -19,8 +19,8 @@ return new class extends Migration
             $table->integer('total_harga');
             $table->integer('bayar')->default(0);
             $table->integer('diterima')->default(0);
-            $table->unsignedBigInteger('id_user')->nullable();
-            $table->foreign('id_user')->references("id")->on("users")->nullOnDelete();
+            $table->unsignedBigInteger('id_user');
+            $table->foreign('id_user')->references("id")->on("users")->cascadeOnDelete();
             $table->timestamps();
         });
     }
