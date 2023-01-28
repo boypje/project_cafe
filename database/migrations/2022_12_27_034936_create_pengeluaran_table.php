@@ -17,6 +17,7 @@ return new class extends Migration
             $table->increments('id_pengeluaran');
             $table->text('deskripsi');
             $table->integer('nominal');
+            $table->string('metode');
             $table->timestamps();
         });
     }

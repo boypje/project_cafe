@@ -18,7 +18,6 @@ return new class extends Migration
             $table->unsignedBigInteger("id_category")->nullable();
             $table->foreign('id_category')->references('id_category')->on('category')->nullOnDelete();
             $table->string('nama_produk')->unique();
-            $table->integer('harga_beli');
             $table->integer('harga_jual');
             $table->integer('stok');
             $table->timestamps();

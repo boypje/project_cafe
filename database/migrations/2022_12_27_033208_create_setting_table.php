@@ -17,9 +17,9 @@ return new class extends Migration
             $table->increments('id_setting');
             $table->string('nama_usaha');
             $table->text('alamat');
+            $table->string('kota')->nullable();
             $table->string('telepon');
             $table->string('path_logo');
-            $table->tinyInteger('tipe_nota');
             $table->timestamps();
         });
     }
