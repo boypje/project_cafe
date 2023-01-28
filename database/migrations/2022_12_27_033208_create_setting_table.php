@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('pembeliandetail', function (Blueprint $table) {
-            $table->increments('id_pembelian_detail');
-            $table->integer('id_pembelian');
-            $table->integer('id_bahan');
-            $table->integer('harga_beli');
-            $table->integer('jumlah');
-            $table->integer('subtotal');
+        Schema::create('setting', function (Blueprint $table) {
+            $table->increments('id_setting');
+            $table->string('nama_usaha');
+            $table->text('alamat');
+            $table->string('kota')->nullable();
+            $table->string('telepon');
+            $table->string('path_logo');
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pembeliandetail');
+        Schema::dropIfExists('setting');
     }
 };

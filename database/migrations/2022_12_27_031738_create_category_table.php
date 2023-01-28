@@ -13,13 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('pembeliandetail', function (Blueprint $table) {
-            $table->increments('id_pembelian_detail');
-            $table->integer('id_pembelian');
-            $table->integer('id_bahan');
-            $table->integer('harga_beli');
-            $table->integer('jumlah');
-            $table->integer('subtotal');
+        Schema::create('category', function (Blueprint $table) {
+            $table->id('id_category');
+            $table->string('nama_kategori')->unique();
             $table->timestamps();
         });
     }
@@ -31,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pembeliandetail');
+        Schema::dropIfExists('category');
     }
 };
