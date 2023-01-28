@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('pembeliandetail', function (Blueprint $table) {
-            $table->increments('id_pembelian_detail');
-            $table->integer('id_pembelian');
-            $table->integer('id_bahan');
+        Schema::create('produk', function (Blueprint $table) {
+            $table->id('id_produk');
+            $table->unsignedBigInteger("id_category")->nullable();
+            $table->foreign('id_category')->references('id_category')->on('category')->onDelete("null");;
+            $table->string('nama_produk')->unique();
             $table->integer('harga_beli');
-            $table->integer('jumlah');
-            $table->integer('subtotal');
+            $table->integer('harga_jual');
+            $table->integer('stok');
             $table->timestamps();
         });
     }
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pembeliandetail');
+        Schema::dropIfExists('produk');
     }
 };
