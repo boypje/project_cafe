@@ -7,15 +7,18 @@ use App\Models\Pengeluaran;
 use App\Models\Penjualan;
 use App\Models\Produk;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $category = Category::count();
+        $pengunjung = Penjualan::where('metode', '<>', '')->sum('pengunjung');
         $produk = Produk::count();
-        $penjualan = Penjualan::count();
+        $penjualan = Penjualan::where('metode', '<>', '')
+        ->where('total_harga', '>', 0)
+        ->count('id_penjualan');
         $user = User::count();
         
 
@@ -40,7 +43,7 @@ class DashboardController extends Controller
         $tanggal_awal = date('Y-m-01');
 
         if (auth()->user()->level == 1) {
-            return view('admin.dashboard', compact('category', 'produk', 'penjualan', 'user', 'tanggal_awal', 'tanggal_akhir', 'data_tanggal', 'data_pendapatan'));
+            return view('admin.dashboard', compact('pengunjung', 'produk', 'penjualan', 'user', 'tanggal_awal', 'tanggal_akhir', 'data_tanggal', 'data_pendapatan'));
         } else {
             return view('kasir.dashboard');
         }

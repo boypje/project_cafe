@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Modal;
 use App\Models\Pengeluaran;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ class LaporanController extends Controller
         $penjualan_debit = 0;
         $pengeluaran_tunai = 0;
         $pengeluaran_debit = 0;
+        $temp = 0;
 
         while (strtotime($awal) <= strtotime($akhir)) {
             $tanggal = $awal;
@@ -51,7 +53,8 @@ class LaporanController extends Controller
             $total_pengeluaran = Pengeluaran::where('created_at', 'LIKE', "%$tanggal%")->sum('nominal');
 
             $pendapatan = $total_penjualan - $total_pengeluaran;
-            $total_pendapatan += $pendapatan;
+            $temp += $pendapatan;
+            $total_pendapatan = $temp + 500000;
 
             $row = array();
             $row['DT_RowIndex'] = $no++;
@@ -76,7 +79,7 @@ class LaporanController extends Controller
             'penjualan' => '',
             'pengeluaran_tunai' => '',
             'pengeluaran_debit' => '',
-            'pengeluaran' => 'Total Setoran',
+            'pengeluaran' => 'Total Setoran + Modal Awal (Rp500.000)',
             'pendapatan' => format_money($total_pendapatan),
         ];
 

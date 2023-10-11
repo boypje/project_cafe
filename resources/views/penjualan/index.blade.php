@@ -21,7 +21,7 @@
                         <th>Kode Pemesanan</th>
                         <th width="15%">Metode Pembayaran</th>
                         <th>Total Harga</th>
-                        <th>Diskon</th>
+                        <th>Potongan</th>
                         <th>Bayar</th>
                         <th>Kasir</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>

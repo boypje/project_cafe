@@ -113,4 +113,13 @@
         });
     });
 </script>
+<style>
+    .form-group input[type="text"],
+    .form-group input[type="file"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group select {
+        border-radius: 8px;
+    }
+</style>
 @endpush

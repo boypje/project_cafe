@@ -31,7 +31,7 @@
         @media print {
             @page {
                 margin: 0;
-                size: 58mm 
+                size: 50mm 
     ';
     ?>
     <?php 
@@ -43,7 +43,7 @@
     <?php
     $style .= '
             html, body {
-                width: 54mm;
+                width: 42mm;
             }
             .btn-print {
                 display: none;
@@ -69,7 +69,7 @@
     </div>
     <div class="clear-both" style="clear: both;"></div>
     <p>No: {{ tambah_nol_didepan($penjualan->id_penjualan, 10) }}</p>
-    <p class="text-center">==========================</p>
+    <p class="text-center">====================</p>
     
     <br>
     <table width="100%" style="border: 0;">
@@ -84,13 +84,13 @@
             </tr>
         @endforeach
     </table>
-    <p class="text-center">--------------------------</p>
+    <p class="text-center">--------------------</p>
 
     <table width="100%" style="border: 0;">
         @if($penjualan->diskon > 0)
         <tr>
-            <td>Diskon:</td>
-            <td class="text-right">{{ $penjualan->diskon }}%</td>
+            <td>Potongan:</td>
+            <td class="text-right">{{ format_money($penjualan->diskon) }}</td>
         </tr>
         @endif
         <tr>
@@ -108,8 +108,13 @@
         
     </table>
 
-    <p class="text-center">==========================</p>
+    <p class="text-center">====================</p>
     <p class="text-center">-- TERIMA KASIH --</p>
+
+    <br>
+    <br>
+    <br>
+    <p class="text-center">--------------------</p>
 
     <script>
         let body = document.body;
@@ -120,7 +125,7 @@
             );
 
         document.cookie = "innerHeight=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        document.cookie = "innerHeight="+ ((height + 0) * 0.264583);
+        document.cookie = "innerHeight="+ ((height + 300) * 0.264583);
     </script>
 </body>
 </html>

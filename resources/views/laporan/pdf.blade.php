@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Laporan Pendapatan</title>
+    <title>Laporan Keuangan</title>
 
     <link rel="stylesheet" href="{{ asset('/AdminLTE-2/bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
 </head>
 <body>
-    <h3 class="text-center">Laporan Pendapatan Warung Altari</h3>
+    <h3 class="text-center">Laporan Keuangan Warung Altari</h3>
     <h4 class="text-center">
         Tanggal {{ tanggal_indonesia($awal, false) }}
         s/d
@@ -20,14 +20,14 @@
         <thead>
             <tr>
             <th width="5%">No</th>
-            <th>Tanggal</th>
+            <th>Tanggal</th> 
             <th>Penjualan Tunai</th>                     
             <th>Penjualan Debit</th>            
             <th>Total Penjualan</th>
             <th>Pengeluaran Tunai</th>
             <th>Pengeluaran Debit</th>
             <th>Total Pengeluaran</th>
-            <th>Pendapatan</th>
+            <th>Setoran</th>
             </tr>
         </thead>
         <tbody>

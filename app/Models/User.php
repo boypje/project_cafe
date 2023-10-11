@@ -63,9 +63,4 @@ class User extends Authenticatable
     {
         return $query->where('level', '!=', 1);
     }
-
-    public function pelayanan()
-    {
-        return $this->hasMany(Penjualan::class, 'id_penjualan', 'id_penjualan');
-    }
 }

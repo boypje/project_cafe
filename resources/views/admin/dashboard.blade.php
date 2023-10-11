@@ -16,14 +16,14 @@
         <!-- small box -->
         <div class="small-box bg-aqua">
             <div class="inner">
-                <h3>{{ $category }}</h3>
+                <h3>{{ $pengunjung }}</h3>
 
-                <p>Total Kategori</p>
+                <p>Total Pengunjung</p>
             </div>
             <div class="icon">
                 <i class="fa fa-cube"></i>
             </div>
-            <a href="{{ route('category.index') }}" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="{{ route('penjualan.index') }}" class="small-box-footer">Lihat <i class="fa fa-arrow-circle-right"></i></a>
         </div>
     </div>
     <!-- ./col -->
@@ -79,7 +79,7 @@
     <div class="col-lg-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title">Grafik Pendapatan {{ tanggal_indonesia($tanggal_awal, false) }} s/d {{ tanggal_indonesia($tanggal_akhir, false) }}</h3>
+                <h3 class="box-title">Grafik Penjualan {{ tanggal_indonesia($tanggal_awal, false) }} s/d {{ tanggal_indonesia($tanggal_akhir, false) }}</h3>
             </div>
             <!-- /.box-header -->
             <div class="box-body">
@@ -116,9 +116,9 @@ $(function() {
         labels: {{ json_encode($data_tanggal) }},
         datasets: [
             {
-                label: 'Pendapatan',
-                fillColor           : 'rgba(60,141,188,0.9)',
-                strokeColor         : 'rgba(60,141,188,0.8)',
+                label: 'Penjualan',
+                fillColor           : '#9DC580',
+                strokeColor         : '#6BAF84',
                 pointColor          : '#3b8bba',
                 pointStrokeColor    : 'rgba(60,141,188,1)',
                 pointHighlightFill  : '#fff',

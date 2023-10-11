@@ -3,7 +3,7 @@
  * -----------
  */
 .skin-green-light .main-header .navbar {
-  background-color: #00a65a;
+  background-color: #E39C57;
 }
 .skin-green-light .main-header .navbar .nav > li > a {
   color: #ffffff;
@@ -43,7 +43,7 @@
   }
 }
 .skin-green-light .main-header .logo {
-  background-color: #00a65a;
+  background-color: #E39C57;
   color: #ffffff;
   border-bottom: 0 solid transparent;
 }
@@ -51,7 +51,7 @@
   background-color: #00a157;
 }
 .skin-green-light .main-header li.user-header {
-  background-color: #00a65a;
+  background-color: #E39C57;
 }
 .skin-green-light .content-header {
   background: transparent;
@@ -87,7 +87,7 @@
   background: #f4f4f5;
 }
 .skin-green-light .sidebar-menu > li.active {
-  border-left-color: #00a65a;
+  border-left-color: #E39C57;
 }
 .skin-green-light .sidebar-menu > li.active > a {
   font-weight: 600;

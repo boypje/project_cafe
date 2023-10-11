@@ -22,10 +22,10 @@
                         <th width="5%">No</th>
                         <th>Kategori</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
+                        <body>
+                </body>
                     </thead>
                 </table>
-                <body>
-                </body>
             </div>
         </div>
     </div>

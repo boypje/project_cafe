@@ -20,12 +20,7 @@ class Penjualan extends Model
 
     public function user()
     {
+        return $this->hasOne(User::class, 'id', 'id_user');
         return $this->belongsTo(User::class, 'id', 'id_user');
     }
-
-    public function detail()
-    {
-        return $this->hasOne(PenjualanDetail::class, 'id_penjualan_detail', 'id_penjualan_detail');
-    }
-
 }

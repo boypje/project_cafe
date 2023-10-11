@@ -1,8 +1,6 @@
 @extends('layouts.master')
 
-@section('title')
-    Transaksi Penjualan
-@endsection
+@section('title', 'Transaksi Penjualan')
 
 @push('css')
 <style>
@@ -10,15 +8,23 @@
         font-size: 5.5em;
         text-align: center;
         height: 120px;
+        color: #fff;
+        background-color: #9DC580;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
     }
 
     .all {
-        height: 600px;
+        height: 800px;
     }
 
-    .tombol {
-        margin-top: -25px;
-        margin-right: 73px;
+    .next {
+        margin-top: 15px;
+        margin-right: 30px;
+    }
+
+    .back {
+        margin-right: 170px;
     }
 
     .bagan {
@@ -31,11 +37,19 @@
         font-family: poppins;
         font-weight: bold;
         padding: 15px;
-        background: #f0f0f0;
+        background: #f4f1e9;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
     }
 
     .table-penjualan tbody tr:last-child {
         display: none;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select {
+        border-radius: 8px;
     }
 
     @media(max-width: 768px) {
@@ -50,7 +64,7 @@
 
 @section('breadcrumb')
     @parent
-    <li class="active">Transaksi Penjaualn</li>
+    <li class="active">Transaksi Penjualan</li>
 @endsection
 
 @section('content')
@@ -58,31 +72,27 @@
     <div class="col-lg-12">
         <div class="all box">
             <div class="box-body">
-                    
-                <form class="form-produk">
+                <form class="form-produk" method="post">
                     @csrf
                     <div class="form-group row">
                         <div class="col-lg-5">
-                            <div class="input-group">
-                                <input type="hidden" name="id_penjualan" id="id_penjualan" value="{{ $id_penjualan }}">
-                                <input type="hidden" name="id_produk" id="id_produk">
-                                <input placeholder="Klik Tombol Panah untuk Memilih Menu" type="text" class="form-control" name="nama_produk" id="nama_produk" readonly>
-                                <span class="input-group-btn">
-                                    <button onclick="tampilProduk()" class="btn btn-info btn-flat" type="button"><i class="fa fa-arrow-right"></i></button>
-                                </span>
-                            </div>
+                            <input type="hidden" name="id_penjualan" id="id_penjualan" value="{{ $id_penjualan }}">
+                            <input type="hidden" name="id_produk" id="id_produk">
                         </div>
                     </div>
+                    <button onclick="tampilProduk()" class="btn btn-info btn-flat" type="button"><i class="fa fa-plus"></i> Pilih Menu</button><br></br>
                 </form>
 
                 <table class="table table-stiped table-bordered table-penjualan">
                     <thead>
-                        <th width="5%">No</th>
-                        <th>Nama</th>
-                        <th>Harga</th>
-                        <th width="15%">Jumlah</th>
-                        <th>Subtotal</th>
-                        <th width="15%"><i class="fa fa-cog"></i></th>
+                        <tr>
+                            <th width="5%">No</th>
+                            <th>Nama</th>
+                            <th>Harga</th>
+                            <th width="15%">Jumlah</th>
+                            <th>Subtotal</th>
+                            <th width="15%"><i class="fa fa-cog"></i></th>
+                        </tr>
                     </thead>
                 </table>
 
@@ -100,50 +110,54 @@
                             <input type="hidden" name="bayar" id="bayar">
 
                             <div class="form-group row">
-                                <label for="totalrp" class="col-lg-2 control-label">Total</label>
+                                <label for="pengunjung" class="col-lg-3 control-label">Pengunjung</label>
+                                <div class="col-lg-8">
+                                    <input type="number" id="pengunjung" class="form-control" name="pengunjung" value="{{ $penjualan->pengunjung ?? 1 }}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                                <label for="totalrp" class="col-lg-3 control-label">Total</label>
                                 <div class="col-lg-8">
                                     <input type="text" id="totalrp" class="form-control" readonly>
                                 </div>
                             </div>
-
                             
-
                             <div class="form-group row">
-                                <label for="diskon" class="col-lg-2 control-label">Diskon</label>
+                                <label for="diskon" class="col-lg-3 control-label">Potongan</label>
                                 <div class="col-lg-8">
                                     <input type="number" name="diskon" id="diskon" class="form-control" 
-                                        value="{{$penjualan->diskon ?? 0}}">
+                                        value="{{ $penjualan->diskon ?? 0 }}">
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="bayar" class="col-lg-2 control-label">Bayar</label>
+                                <label for="bayar" class="col-lg-3 control-label">Bayar</label>
                                 <div class="col-lg-8">
                                     <input type="text" id="bayarrp" class="form-control" readonly>
                                 </div>
                             </div>
-
                                 
                             <div class="form-group row">
-                                <label for="diterima" class="col-lg-2 control-label">Diterima</label>
+                                <label for="diterima" class="col-lg-3 control-label">Diterima</label>
                                 <div class="col-lg-8">
                                     <input type="number" id="diterima" class="form-control" name="diterima" value="{{ $penjualan->diterima ?? 0 }}">
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="metode" class="col-lg-2 control-label">Metode</label>
-                                    <div class="col-lg-8">
-                                        <select name="metode" id="" class="form-control" required autofocus">
-                                            <option value="Tunai">Tunai</option>
-                                            <option value="Debit">Debit</option>
-                                        </select>
+                                <label for="metode" class="col-lg-3 control-label">Metode</label>
+                                <div class="col-lg-8">
+                                    <select name="metode" id="metode" class="form-control" required autofocus>
+                                        <option value="Tunai">Tunai</option>
+                                        <option value="Debit">Debit</option>
+                                    </select>
                                     <span class="help-block with-errors"></span>
                                 </div>
                             </div>
                             
                             <div class="form-group row">
-                                <label for="kembali" class="col-lg-2 control-label">Kembali</label>
+                                <label for="kembali" class="col-lg-3 control-label">Kembali</label>
                                 <div class="col-lg-8">
                                     <input type="text" id="kembali" name="kembali" class="form-control" value="0" readonly>
                                 </div>
@@ -151,13 +165,15 @@
                         </form>
                     </div>
                 </div>
-                    <div class="tombol button-group">
-                        <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-floppy-o"></i> Simpan Transaksi</button>
-                        <a href="{{ route('penjualan.index') }}"><button class="btn btn-sm btn-success btn-flat pull-right"><i class="fa fa-arrow-left"> Kembali</i></button></a>
+                
+                <div class="next">
+                    <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-floppy-o"></i> Simpan Transaksi</button>
+                </div>
 
-                    </div>
+                <div class="back">
+                    <button class="btn btn-success btn-sm btn-flat pull-right btn-kembali"><i class="fa fa-arrow-left"></i> Kembali</button>
+                </div>
             </div>
-            
         </div>
     </div>
 </div>
@@ -225,8 +241,7 @@
                     $(this).on('mouseout', function () {
                         table.ajax.reload(() => loadForm($('#diskon').val()));
                     });
-                })
-                
+                });
         });
 
         $(document).on('input', '#diskon', function () {
@@ -235,6 +250,13 @@
             }
             loadForm($(this).val());
         });
+
+        $(document).on('input', '#pengunjung', function () {
+            if ($(this).val() < 1) {
+                $(this).val(1).select();
+            }
+        });
+
         $('#diterima').on('input', function () {
             if ($(this).val() == "") {
                 $(this).val(0).select();
@@ -246,19 +268,19 @@
         $('.btn-simpan').on('click', function () {
             $('.form-penjualan').submit();
         });
+        $('.btn-kembali').on('click', function () {
+            // Mengarahkan ke route 'penjualan.index'
+            window.location.href = "{{ route('penjualan.index') }}";
+        });
     });
+
     function tampilProduk() {
         $('#modal-produk').modal('show');
-    }
-
-    function hideProduk() {
-        $('#modal-produk').modal('hide');
     }
 
     function pilihProduk(id, nama) {
         $('#id_produk').val(id);
         $('#nama_produk').val(nama);
-        hideProduk();
         tambahProduk();
     }
 
@@ -273,7 +295,6 @@
                 return;
             });
     }
-
 
     function deleteData(url) {
         if (confirm('Yakin ingin menghapus data terpilih?')) {
@@ -305,18 +326,21 @@
 
                 $('#kembali').val(response.kembalirp);
 
-
                 if ($('#diterima').val() != 0) {
                     $('.tampil-bayar').text('Kembali: '+ response.kembalirp);
                     $('.tampil-terbilang').text(response.kembali_terbilang);
                 }
-
-                
             })
             .fail(errors => {
                 alert('Tidak dapat menampilkan data');
                 return;
-            })
+            });
+    }
+</script>
+<script>
+    function kembali() {
+        // Ganti URL berikut dengan URL tujuan Anda
+        window.location.href = "{{ route('penjualan.index') }}";
     }
 </script>
 @endpush

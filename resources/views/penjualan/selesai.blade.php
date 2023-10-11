@@ -37,10 +37,6 @@
         popupCenter(url, title, 625, 500);
     }
 
-    function notaBesar(url, title) {
-        popupCenter(url, title, 900, 675);
-    }
-
     function popupCenter(url, title, w, h) {
         const dualScreenLeft = window.screenLeft !==  undefined ? window.screenLeft : window.screenX;
         const dualScreenTop  = window.screenTop  !==  undefined ? window.screenTop  : window.screenY;

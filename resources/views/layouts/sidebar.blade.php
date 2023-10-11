@@ -9,7 +9,7 @@
             </div>
             <div class="pull-left info">
                 <p>{{ auth()->user()->name }}</p>
-                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                <a href="#"><i class="fa fa-circle text-success"></i>On Service</a>
             </div>
         </div>
         
@@ -48,24 +48,25 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('transaksi.index') }}">
-                    <i class="fa fa-cart-arrow-down"></i> <span>Transaksi Aktif</span>
-                </a>
-            </li>
-            <li>
                 <a href="{{ route('transaksi.baru') }}">
                     <i class="fa fa-cart-arrow-down"></i> <span>Transaksi Baru</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('transaksi.index') }}">
+                    <i class="fa fa-cart-arrow-down"></i> <span>Transaksi Aktif</span>
+                </a>
+            </li>
+            
             <li class="header">REPORT</li>
             <li>
                 <a href="{{ route('laporan.index') }}">
-                    <i class="fa fa-file-pdf-o"></i> <span>Laporan Setoran</span>
+                    <i class="fa fa-file-pdf-o"></i> <span>Laporan Keuangan</span>
                 </a>
             </li>
             <li>
-                <a href="#">
-                    <i class="fa fa-book"></i> <span>Laporan Stok Penjualan</span>
+                <a href="{{ route('laporan_stok.index') }}">
+                    <i class="fa fa-book"></i> <span>Laporan Penjualan Kasir</span>
                 </a>
             </li>
             <li class="header">SYSTEM</li>
@@ -75,6 +76,16 @@
                 </a>
             </li>
             @else
+            <li>
+          <a href="{{route('produk.index')}}">
+          <i class="fa fa-cutlery"></i> <span>Menu</span>
+          </a>
+        </li>
+        <li>
+                <a href="{{ route('pengeluaran.index') }}">
+                    <i class="fa fa-money"></i> <span>Pengeluaran</span>
+                </a>
+            </li>
             <li>
                 <a href="{{ route('transaksi.baru') }}">
                     <i class="fa fa-cart-arrow-down"></i> <span>Transaksi Baru</span>

@@ -28,18 +28,18 @@ class PengeluaranController extends Controller
             ->addColumn('created_at', function ($pengeluaran){
                 return tanggal_indonesia($pengeluaran->created_at, false);
             })
-            ->addColumn('metode', function ($penjualan) {
-                return $penjualan->metode;
+            ->addColumn('metode', function ($pengeluaran) {
+                return $pengeluaran->metode;
             })
             ->addColumn('nominal', function ($pengeluaran){
                 return format_money($pengeluaran->nominal);
             })
             ->addColumn('aksi', function ($pengeluaran) {
                 return '
-                <div class="btn-group">
-                    <button onclick="editForm(`'. route('pengeluaran.update', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"> Edit</i></button>
-                    <button onclick="deleteData(`'. route('pengeluaran.destroy', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"> Hapus</i></button>
-                </div>
+                
+                    <button onclick="editForm(`'. route('pengeluaran.update', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
+                    <button onclick="deleteData(`'. route('pengeluaran.destroy', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                
                 ';
             })
             ->rawColumns(['aksi'])

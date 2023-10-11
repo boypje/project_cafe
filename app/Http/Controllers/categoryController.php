@@ -27,11 +27,10 @@ class categoryController extends Controller
             ->addIndexColumn()
             ->addColumn('aksi', function ($category) {
                 return '
-                <div class="btn-group">
-                    <button onclick="editForm(`'. route('category.update', $category->id_category) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"> Edit</i></button>
-                    <button onclick="deleteData(`'. route('category.destroy', $category->id_category) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"> Hapus</i></button>
-                </div>
-                ';
+<button onclick="editForm(\''. route('category.update', $category->id_category) .'\')" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
+<button onclick="deleteData(\''. route('category.destroy', $category->id_category) .'\')" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+';
+
             })
             ->rawColumns(['aksi'])
             ->make(true);

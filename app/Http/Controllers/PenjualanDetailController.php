@@ -107,7 +107,7 @@ class PenjualanDetailController extends Controller
 
     public function loadForm($diskon = 0, $total = 0, $diterima = 0)
     {
-        $bayar   = $total - ($diskon / 100 * $total);
+        $bayar   = $total - $diskon;
         $kembali = ($diterima != 0) ? $diterima - $bayar : 0;
         $data    = [
             'totalrp' => format_money($total),

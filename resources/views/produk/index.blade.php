@@ -14,7 +14,9 @@
     <div class="col-lg-12">
         <div class="box">
             <div class="box-header with-border">
+            @if (auth()->user()->level == 1)
                 <button onclick="addForm('{{ route('produk.store') }}')" class="btn btn-success btn-xs btn-flat"><i class="fa fa-plus-circle"></i> Tambah</button>
+            @endif
             </div>
             <div class="box-body table-responsive">
                 <table class="table table-stiped table-bordered">

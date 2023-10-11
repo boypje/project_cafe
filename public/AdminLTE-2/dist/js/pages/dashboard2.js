@@ -103,8 +103,8 @@ $(function () {
     },
     {
       value    : 500,
-      color    : '#00a65a',
-      highlight: '#00a65a',
+      color    : '#E39C57',
+      highlight: '#E39C57',
       label    : 'IE'
     },
     {
@@ -121,8 +121,8 @@ $(function () {
     },
     {
       value    : 300,
-      color    : '#3c8dbc',
-      highlight: '#3c8dbc',
+      color    : '#688F4E',
+      highlight: '#688F4E',
       label    : 'Opera'
     },
     {
@@ -194,7 +194,7 @@ $(function () {
     },
     markerStyle      : {
       initial: {
-        fill  : '#00a65a',
+        fill  : '#E39C57',
         stroke: '#111'
       }
     },

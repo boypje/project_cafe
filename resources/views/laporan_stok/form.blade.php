@@ -1,6 +1,6 @@
 <div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form">
     <div class="modal-dialog modal-lg" role="document">
-        <form action="{{ route('laporan.index') }}" method="get" data-toggle="validator" class="form-horizontal">
+        <form action="{{ route('laporan_stok.index') }}" method="get" data-toggle="validator" class="form-horizontal">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
@@ -13,7 +13,8 @@
                         <div class="col-lg-6">
                             <input type="text" name="tanggal_awal" id="tanggal_awal" class="form-control datepicker" required autofocus
                                 value="{{ request('tanggal_awal') }}"
-                                style="border-radius: 0 !important;">
+                                style="border-radius: 0 !important;"
+                                oninput="this.value = this.value.replace(/[^0-9-]/g, '');">
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
@@ -22,7 +23,8 @@
                         <div class="col-lg-6">
                             <input type="text" name="tanggal_akhir" id="tanggal_akhir" class="form-control datepicker" required
                                 value="{{ request('tanggal_akhir') ?? date('Y-m-d') }}"
-                                style="border-radius: 0 !important;">
+                                style="border-radius: 0 !important;"
+                                oninput="this.value = this.value.replace(/[^0-9-]/g, '');">
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
@@ -35,3 +37,28 @@
         </form>
     </div>
 </div>
+<style>
+   /* Menambahkan radius-border 8px pada modal dan mengatur lebar */
+.modal-content {
+    border-radius: 8px;
+    width: 80%; /* Anda dapat mengganti persentase sesuai dengan kebutuhan Anda */
+    max-width: 600px; /* Atur lebar maksimum jika diperlukan */
+    left: 50%;
+    transform: translate(-50%);
+}
+
+/* Menjorokkan field-field input ke kiri */
+.modal-content .form-group label {
+    text-align: left;
+}
+
+/* Menjorokkan field-field input ke kiri */
+.modal-content .form-group .form-control {
+    text-align: left;
+}
+
+/* Opsional: Menambahkan bayangan (box-shadow) untuk efek yang lebih baik */
+.modal-content {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+</style>

@@ -14,11 +14,13 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="box">
-            <div class="box-body text-center">
+            <div class="box-body text-center"> <!-- Tambah class text-center di sini -->
                 <h1>Selamat Datang</h1>
-                <h2>Anda login sebagai KASIR</h2>
+                <h2>Anda login sebagai {{ auth()->user()->name }}</h2>
                 <br><br>
                 <a href="{{ route('transaksi.baru') }}" class="btn btn-success btn-lg">Transaksi Baru</a>
+                <br><br>
+                <button class="btn btn-primary btn-lg" onclick="window.open('{{ route('kasir.nota_status') }}')">&ensp;Cetak Status&ensp;</button>
                 <br><br><br>
             </div>
         </div>

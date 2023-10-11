@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-    Laporan Setoran {{ tanggal_indonesia($tanggalAwal, false) }} s/d {{ tanggal_indonesia($tanggalAkhir, false) }}
+    Laporan Keuangan {{ tanggal_indonesia($tanggalAwal, false) }} s/d {{ tanggal_indonesia($tanggalAkhir, false) }}
 @endsection
 
 @push('css')
@@ -49,6 +49,7 @@
     let table;
 
     $(function () {
+        $('body').addClass('sidebar-collapse');
         table = $('.table').DataTable({
             responsive: true,
             processing: true,
