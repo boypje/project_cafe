@@ -1,10 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Resources\ProductCollection;
+use App\Http\Resources\ProductResource;
 use App\Models\Produk;
 use App\Models\Category;
-use Illuminate\Http\JsonResponse;
+use App\QueryBuilders\ProductBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ProdukController extends Controller
 {
@@ -119,8 +123,7 @@ class ProdukController extends Controller
         return response(null, 204);
     }
 
-    public function getProducts() : JsonResponse {
-        $products = Produk::all();
-        return response()->json($products); 
+    public function getProducts(ProductBuilder $query) : ProductCollection {
+        return new ProductCollection($query->paginate());
     }
 }

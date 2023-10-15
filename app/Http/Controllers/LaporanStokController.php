@@ -45,6 +45,7 @@ class LaporanStokController extends Controller
             ->select($selectColumns)
             ->join('users', 'users.id', '=', 'penjualan.id_user')
             ->join('penjualandetail', 'penjualandetail.id_penjualan', '=', 'penjualan.id_penjualan')
+            ->whereIn('penjualandetail.id_produk', $productIds)
             ->whereDate("penjualan.created_at", ">=", $startDate)
             ->whereDate("penjualan.created_at", "<=", $endDate)
             ->groupBy('kasir', DB::raw('DATE(penjualan.created_at)'))

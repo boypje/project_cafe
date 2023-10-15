@@ -18,7 +18,7 @@
             processResults: function (data, params) {
                 params.page = params.page || 1;
                 return {
-                    results: data.map((item) => {
+                    results: data.data.map((item) => {
                         return {
                             id: item.id_produk,
                             text: item.nama_produk,
