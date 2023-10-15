@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Produk;
 use App\Models\Category;
-
-
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ProdukController extends Controller
@@ -118,5 +117,10 @@ class ProdukController extends Controller
         $produk->delete();
 
         return response(null, 204);
+    }
+
+    public function getProducts() : JsonResponse {
+        $products = Produk::all();
+        return response()->json($products); 
     }
 }

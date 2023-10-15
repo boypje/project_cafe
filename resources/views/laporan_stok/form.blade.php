@@ -14,7 +14,8 @@
                             <input type="text" name="tanggal_awal" id="tanggal_awal" class="form-control datepicker" required autofocus
                                 value="{{ request('tanggal_awal') }}"
                                 style="border-radius: 0 !important;"
-                                oninput="this.value = this.value.replace(/[^0-9-]/g, '');">
+                                oninput="this.value = this.value.replace(/[^0-9-]/g, '');"
+                                >
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
@@ -28,6 +29,8 @@
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
+
+                    <x-laporanstok.column-select />
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-save"></i> Simpan</button>
