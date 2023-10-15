@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Resources\ProductCollection;
+use App\Http\Resources\ProductResource;
 use App\Models\Produk;
 use App\Models\Category;
-
-
+use App\QueryBuilders\ProductBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ProdukController extends Controller
 {
@@ -118,5 +121,9 @@ class ProdukController extends Controller
         $produk->delete();
 
         return response(null, 204);
+    }
+
+    public function getProducts(ProductBuilder $query) : ProductCollection {
+        return new ProductCollection($query->paginate());
     }
 }

@@ -3,8 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\categoryController;
 use App\Http\Controllers\ProdukController;
-use App\Http\Controllers\BahanController;
-use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\ModalController;
 use App\Http\Controllers\PenjualanDetailController;
@@ -42,8 +40,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/category/data', [categoryController::class, 'data'])->name('category.data');
         Route::resource('/category', categoryController::class);
 
-        Route::get('/supplier/data', [SupplierController::class, 'data'])->name('supplier.data');
-        Route::resource('/supplier', SupplierController::class);
+        // Route::get('/supplier/data', [SupplierController::class, 'data'])->name('supplier.data');
+        // Route::resource('/supplier', SupplierController::class);
 
         Route::get('/pengeluaran/data', [PengeluaranController::class, 'data'])->name('pengeluaran.data');
         Route::resource('/pengeluaran', PengeluaranController::class);
@@ -59,6 +57,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'level:1,2'], function () {
         Route::get('/produk/data', [ProdukController::class, 'data'])->name('produk.data');
+        Route::get('/produk/get-products', [ProdukController::class, 'getProducts'])->name('produk.get_products');
         Route::resource('/produk', ProdukController::class);
         Route::get('/transaksi/baru', [PenjualanController::class, 'create'])->name('transaksi.baru');
         Route::post('/transaksi/simpan', [PenjualanController::class, 'store'])->name('transaksi.simpan');
@@ -85,8 +84,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'level:1'], function () {
         Route::get('/laporanstok', [LaporanStokController::class, 'index'])->name('laporan_stok.index');
-        Route::get('/laporanstok/data/{awal}/{akhir}', [LaporanStokController::class, 'data'])->name('laporan_stok.data');
-        Route::get('/laporanstok/pdf/{awal}/{akhir}', [LaporanStokController::class, 'exportPDF'])->name('laporan_stok.export_pdf');
+        Route::get('/laporanstok/data', [LaporanStokController::class, 'data'])->name('laporan_stok.data');
+        Route::get('/laporanstok/pdf', [LaporanStokController::class, 'exportPDF'])->name('laporan_stok.export_pdf');
 
         Route::get('/user/data', [UserController::class, 'data'])->name('user.data');
         Route::resource('/user', UserController::class);
