@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\categoryController;
+use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\ModalController;
@@ -12,6 +12,7 @@ use App\Http\Controllers\LaporanStokController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingController;
 
 
 /*
@@ -37,11 +38,8 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     Route::group(['middleware' => 'level:1'], function () {
-        Route::get('/category/data', [categoryController::class, 'data'])->name('category.data');
-        Route::resource('/category', categoryController::class);
-
-        // Route::get('/supplier/data', [SupplierController::class, 'data'])->name('supplier.data');
-        // Route::resource('/supplier', SupplierController::class);
+        Route::get('/category/data', [KategoriController::class, 'data'])->name('category.data');
+        Route::resource('/category', KategoriController::class);
 
         Route::get('/pengeluaran/data', [PengeluaranController::class, 'data'])->name('pengeluaran.data');
         Route::resource('/pengeluaran', PengeluaranController::class);
@@ -89,7 +87,12 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('/user/data', [UserController::class, 'data'])->name('user.data');
         Route::resource('/user', UserController::class);
+
+        Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+        Route::get('/setting/first', [SettingController::class, 'show'])->name('setting.show');
+        Route::post('/setting', [SettingController::class, 'update'])->name('setting.update');
     });
+    
  
     Route::group(['middleware' => 'level:1,2'], function () {
         Route::get('/profil', [UserController::class, 'profil'])->name('user.profil');

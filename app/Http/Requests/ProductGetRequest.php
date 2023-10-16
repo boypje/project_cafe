@@ -27,7 +27,7 @@ class ProductGetRequest extends FormRequest
             'q' => 'nullable|string|min:1',
             'page.number' => 'nullable|integer|min:1',
             'page.size' => 'nullable|integer|between:1,100',
-            'search' => 'nullable|string|min:3|max:60', 
+            'search' => 'nullable|string|min:3|max:70', 
         ];
     }
 }

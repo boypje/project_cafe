@@ -54,7 +54,7 @@ class LaporanController extends Controller
 
             $pendapatan = $total_penjualan - $total_pengeluaran;
             $temp += $pendapatan;
-            $total_pendapatan = $temp + 500000;
+            $total_pendapatan = $temp;
 
             $row = array();
             $row['DT_RowIndex'] = $no++;
@@ -79,7 +79,7 @@ class LaporanController extends Controller
             'penjualan' => '',
             'pengeluaran_tunai' => '',
             'pengeluaran_debit' => '',
-            'pengeluaran' => 'Total Setoran + Modal Awal (Rp500.000)',
+            'pengeluaran' => 'Total Setoran',
             'pendapatan' => format_money($total_pendapatan),
         ];
 

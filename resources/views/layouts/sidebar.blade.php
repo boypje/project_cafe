@@ -27,7 +27,7 @@
 
         <li>
           <a href="{{route('category.index')}}">
-          <i class="fa fa-cube"></i><span>Kategori</span>
+          <i class="fa fa-tag"></i><span>Kategori</span>
           </a>
         </li>
 

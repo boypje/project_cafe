@@ -20,9 +20,9 @@
     <div class="col-lg-12">
         <div class="box">
             <div class="box-header with-border">
-                <button onclick="updatePeriode()" class="btn btn-info btn-xs btn-flat"><i class="fa fa-plus-circle"></i> Filter</button>
-                <button class="btn btn-success btn-xs btn-flat" 
-                    onclick="cetakPDF('{{ route('laporan_stok.export_pdf', [$tanggalAwal, $tanggalAkhir]) }}', 'Laporan Stok')">Cetak PDF</button>
+                <button onclick="updatePeriode()" class="btn btn-info btn-xs btn-flat"><i class="fa fa-sliders"></i> Filter</button>
+                <button onclick="cetakPDF('{{ route('laporan_stok.export_pdf', [$tanggalAwal, $tanggalAkhir]) }}', 'Laporan Stok')" class="btn btn-success btn-xs btn-flat">
+                <i class="fa fa-file-pdf-o"></i>&nbsp;Export PDF</button>
             </div>
             <div class="box-body table-responsive">
                 <table class="table table-stiped table-bordered">

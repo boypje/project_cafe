@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ asset('/AdminLTE-2/bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
 </head>
 <body>
-    <h3 class="text-center">Laporan Keuangan Warung Altari</h3>
+    <h3 class="text-center">Laporan Keuangan Restoran Altari</h3>
     <h4 class="text-center">
         Tanggal {{ tanggal_indonesia($awal, false) }}
         s/d

@@ -29,7 +29,6 @@ class PenjualanDetailController extends Controller
         }
     }
 
-
     public function data($id)
     {
         $detail = PenjualanDetail::with('produk')
@@ -93,7 +92,7 @@ class PenjualanDetailController extends Controller
     {
         $detail = PenjualanDetail::find($id);
         $detail->jumlah = $request->jumlah;
-        $detail->subtotal = $detail->harga_jual * $request->jumlah;;
+        $detail->subtotal = $detail->harga_jual * $request->jumlah;
         $detail->update();
     }
 
