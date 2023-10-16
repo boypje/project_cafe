@@ -24,9 +24,9 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="email" class="col-lg-3 col-lg-offset-1 control-label">Email</label>
+                        <label for="email" class="col-lg-3 col-lg-offset-1 control-label">Username</label>
                         <div class="col-lg-6">
-                            <input type="email" name="email" id="email" class="form-control" required>
+                            <input type="username" name="email" id="email" class="form-control" required>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
@@ -85,7 +85,7 @@
 
 .form-group input[type="text"],
 .form-group input[type="number"],
-.form-group input[type="email"],
+.form-group input[type="username"],
 .form-group input[type="password"],
 .form-group select {
     border-radius: 8px;

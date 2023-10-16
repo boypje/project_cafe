@@ -21,7 +21,7 @@
                     <thead>
                         <th width="5%">No</th>
                         <th>Nama</th>
-                        <th>Email</th>
+                        <th>Username</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
                 </table>

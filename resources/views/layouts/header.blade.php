@@ -1,24 +1,26 @@
 <header class="main-header">
     <!-- Logo -->
     <div class="logo">
-        <!-- mini logo for sidebar mini 50x50 pixels -->
+        <!-- Mini logo for sidebar mini 50x50 pixels -->
         <span class="logo-mini"><b>POS</b></span>
-        <!-- logo for regular state and mobile devices -->
+        <!-- Logo for regular state and mobile devices -->
         <span class="logo-lg"><b>Altari POS</b></span>
     </div>
-    <!-- Header Navbar: style can be found in header.less -->
+    <!-- Header Navbar: Style can be found in header.less -->
     <nav class="navbar navbar-static-top">
-        <!-- Sidebar toggle button-->
+        <!-- Sidebar toggle button -->
         <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
             <span class="sr-only">Toggle navigation</span>
         </a>
 
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
-                <!-- User Account: style can be found in dropdown.less -->
-                <li>
-            <a href="{{ route('setting.index') }}"><i class="fa fa-gears"></i></a>
-          </li>
+                <!-- User Account: Style can be found in dropdown.less -->
+                @if (auth()->user()->level == 1)
+                    <li>
+                        <a href="{{ route('setting.index') }}"><i class="fa fa-gears"></i></a>
+                    </li>
+                @endif
                 <li class="dropdown user user-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <img src="{{ url(auth()->user()->foto ?? '') }}" class="user-image img-profil" alt="User Image">
@@ -33,7 +35,7 @@
                                 {{ auth()->user()->name }} - {{ auth()->user()->email }}
                             </p>
                         </li>
-                        <!-- Menu Footer-->
+                        <!-- Menu Footer -->
                         <li class="user-footer">
                             <div class="pull-left">
                                 <a href="{{ route('user.profil') }}" class="btn btn-default btn-flat">Profil</a>

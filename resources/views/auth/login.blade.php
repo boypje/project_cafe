@@ -18,7 +18,7 @@
                     </span>
 
                     <div class="wrap-input100 validate-input m-b-16" data-validate="Please enter username">
-                        <input class="input100" type="email" name="email" placeholder="Username" onfocus="handleFocus('user-icon')" onblur="handleBlur('user-icon')">
+                        <input class="input100" type="username" name="email" placeholder="Username" onfocus="handleFocus('user-icon')" onblur="handleBlur('user-icon')">
                         <span class="focus-input100"></span>
                         <i class="fa fa-user fa-lg icon-right" id="user-icon"></i>
                     </div>
