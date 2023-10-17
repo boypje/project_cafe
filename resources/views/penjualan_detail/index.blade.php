@@ -10,12 +10,11 @@
         height: 120px;
         color: #fff;
         background-color: #9DC580;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
+        border-radius: 8px;
     }
 
     .all {
-        height: 800px;
+        height: 900px;
     }
 
     .next {
@@ -29,17 +28,6 @@
 
     .bagan {
         margin-top: 40px;
-    }
-
-    .tampil-terbilang {
-        text-align: center;
-        font-size: 18px;
-        font-family: poppins;
-        font-weight: bold;
-        padding: 15px;
-        background: #f4f1e9;
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
     }
 
     .table-penjualan tbody tr:last-child {
@@ -99,7 +87,6 @@
                 <div class="bagan row">
                     <div class="col-lg-8">
                         <div class="tampil-bayar bg-primary"></div>
-                        <div class="tampil-terbilang"></div>
                     </div>
                     <div class="col-lg-4">
                         <form action="{{ route('transaksi.simpan') }}" class="form-penjualan" method="post">
@@ -117,7 +104,7 @@
                             </div>
                             
                             <div class="form-group row">
-                                <label for="totalrp" class="col-lg-3 control-label">Total</label>
+                                <label for "totalrp" class="col-lg-3 control-label">Total</label>
                                 <div class="col-lg-8">
                                     <input type="text" id="totalrp" class="form-control" readonly>
                                 </div>
@@ -185,6 +172,11 @@
 @push('scripts')
 <script>
     let table, table2;
+    let selectedProducts = [];
+
+    function isProductSelected(productId) {
+        return selectedProducts.includes(productId);
+    }
 
     $(function () {
         $('body').addClass('sidebar-collapse');
@@ -269,7 +261,6 @@
             $('.form-penjualan').submit();
         });
         $('.btn-kembali').on('click', function () {
-            // Mengarahkan ke route 'penjualan.index'
             window.location.href = "{{ route('penjualan.index') }}";
         });
     });
@@ -279,22 +270,39 @@
     }
 
     function pilihProduk(id, nama) {
-        $('#id_produk').val(id);
-        $('#nama_produk').val(nama);
-        tambahProduk();
+        let id_produk = $('#id_produk').val();
+        if (isProductSelected(id)) {
+            alert('Menu ini sudah dipilih dalam transaksi ini.');
+        } else {
+            $('#id_produk').val(id);
+            $('#nama_produk').val(nama);
+            tambahProduk();
+        }
     }
 
     function tambahProduk() {
-        $.post('{{ route('transaksi.store') }}', $('.form-produk').serialize())
-            .done(response => {
-                $('#nama_produk').focus();
-                table.ajax.reload(() => loadForm($('#diskon').val()));
-            })
-            .fail(errors => {
-                alert('Tidak dapat menyimpan data');
-                return;
-            });
+    let id_produk = $('#id_produk').val();
+
+    if (isProductSelected(id_produk)) {
+        alert('Menu ini sudah dipilih dalam transaksi ini.');
+        return;
     }
+
+    // Tambahkan produk ke dalam transaksi
+    $.post('{{ route('transaksi.store') }}', $('.form-produk').serialize())
+        .done(response => {
+            $('#nama_produk').focus();
+
+            // Tandai produk sebagai sudah dipilih
+            selectedProducts.push(id_produk);
+
+            table.ajax.reload(() => loadForm($('#diskon').val()));
+        })
+        .fail(errors => {
+            alert('Tidak dapat menyimpan data');
+            return;
+        });
+}
 
     function deleteData(url) {
         if (confirm('Yakin ingin menghapus data terpilih?')) {
@@ -322,13 +330,10 @@
                 $('#bayarrp').val(response.bayarrp);
                 $('#bayar').val(response.bayar);
                 $('.tampil-bayar').text('Bayar: '+ response.bayarrp);
-                $('.tampil-terbilang').text(response.terbilang);
-
                 $('#kembali').val(response.kembalirp);
 
                 if ($('#diterima').val() != 0) {
                     $('.tampil-bayar').text('Kembali: '+ response.kembalirp);
-                    $('.tampil-terbilang').text(response.kembali_terbilang);
                 }
             })
             .fail(errors => {
@@ -339,7 +344,6 @@
 </script>
 <script>
     function kembali() {
-        // Ganti URL berikut dengan URL tujuan Anda
         window.location.href = "{{ route('penjualan.index') }}";
     }
 </script>

@@ -8,6 +8,7 @@ use App\Models\Produk;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 
+
 class PenjualanDetailController extends Controller
 {
     public function index()

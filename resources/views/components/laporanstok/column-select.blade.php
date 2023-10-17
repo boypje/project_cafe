@@ -25,6 +25,7 @@
                 $('#column-select option:selected').each(function () {
                     $(this).prop('selected', false);
                 });
+                $('#column-select').val(null).trigger('change');
                 localStorage.removeItem('selectedOptions'); // Hapus selectedOptions dari localStorage
             } else {
                 $('#column-select').prop('disabled', false); // Mengaktifkan kembali <select> saat checkbox tidak dicentang
