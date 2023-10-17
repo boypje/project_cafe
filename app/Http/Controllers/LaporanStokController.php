@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LaporanKeuanganGetRequest;
 use App\Models\Produk;
-use PDF;
+use App\Exports\ExportReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanStokController extends Controller
 {
@@ -48,7 +49,7 @@ class LaporanStokController extends Controller
             ->whereIn('penjualandetail.id_produk', $productIds)
             ->whereDate("penjualan.created_at", ">=", $startDate)
             ->whereDate("penjualan.created_at", "<=", $endDate)
-            ->groupBy('kasir', DB::raw('DATE(penjualan.created_at)'))
+            ->groupBy(DB::raw('DATE(penjualan.created_at)'),'kasir')
             ->get();
         $totalColumns = array_map(function ($productId) {
             return "total_produk_" . $productId . "_terjual";
@@ -90,22 +91,13 @@ class LaporanStokController extends Controller
             ->make(true);
     }
 
-    public function exportPDF(LaporanKeuanganGetRequest $request)
+    public function exportExcel(LaporanKeuanganGetRequest $request)
     {
         $startDate = $request->input('tanggal_awal');
-        $endDate = $request->input('tanggal_awal');
+        $endDate = $request->input('tanggal_akhir');
+        $productIds = $request->input('productIds');
 
-        if (empty($request->productIds) || $request->selected_all) {
-            $productIds = Produk::pluck('id_produk')->toArray();
-        } else {
-            $productIds = $request->productIds;
-        }
-
-        $data = $this->getData($startDate, $endDate, $productIds);
-        $pdf  = PDF::loadView('laporan_stok.pdf', compact('tanggalAwal', 'tanggalAkhir', 'data'));
-        $pdf->setPaper('a4', 'landscape');
-
-        // Mengirim PDF ke browser untuk pencetakan langsung
-        return $pdf->stream('Laporan-Kasir-' . date('Y-m-d-his') . '.pdf', ['Attachment' => false]);
+        return Excel::download(new ExportReport($startDate, $endDate, $productIds), "Laporan_Penjualan_Kasir.xlsx", \Maatwebsite\Excel\Excel::XLSX);
     }
+
 }

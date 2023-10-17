@@ -1,18 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Pengeluaran;
-
-
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PengeluaranController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         return view('pengeluaran.index');
@@ -20,61 +15,63 @@ class PengeluaranController extends Controller
 
     public function data()
     {
-        $pengeluaran = Pengeluaran::orderBy('id_pengeluaran', 'asc')->get();
+        $user = auth()->user();
+        $today = Carbon::now();
+
+        if ($user->level === 1) {
+            $pengeluaran = Pengeluaran::orderBy('id_pengeluaran', 'asc')->get();
+        } else {
+            $pengeluaran = Pengeluaran::where('id_user', $user->id)
+                ->orderBy('id_pengeluaran', 'asc')
+                ->get();
+        }
 
         return datatables()
             ->of($pengeluaran)
             ->addIndexColumn()
-            ->addColumn('created_at', function ($pengeluaran){
+            ->addColumn('created_at', function ($pengeluaran) {
                 return tanggal_indonesia($pengeluaran->created_at, false);
             })
             ->addColumn('metode', function ($pengeluaran) {
                 return $pengeluaran->metode;
             })
-            ->addColumn('nominal', function ($pengeluaran){
+            ->addColumn('nominal', function ($pengeluaran) {
                 return format_money($pengeluaran->nominal);
             })
-            ->addColumn('aksi', function ($pengeluaran) {
-                return '
-                
-                    <button onclick="editForm(`'. route('pengeluaran.update', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
-                    <button onclick="deleteData(`'. route('pengeluaran.destroy', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-                
-                ';
+            ->editColumn('kasir', function ($pengeluaran) {
+                return $pengeluaran->user->name ?? '';
+            })
+            ->addColumn('aksi', function ($pengeluaran) use ($user, $today) {
+                $buttons = '';
+
+                if ($user->level === 1 || (Carbon::parse($pengeluaran->created_at)->isSameDay($today) && $user->level === 2)) {
+                    $buttons .= '<button onclick="editForm(`'. route('pengeluaran.update', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>';
+                    $buttons .= '<button onclick="deleteData(`'. route('pengeluaran.destroy', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>';
+                }
+
+                return $buttons;
             })
             ->rawColumns(['aksi'])
             ->make(true);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        //
+        // Kode untuk menampilkan formulir pembuatan pengeluaran
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        $pengeluaran = Pengeluaran::create($request->all());
+        $pengeluaran = new Pengeluaran();
+        $pengeluaran->id_user = auth()->id();
+        $pengeluaran->metode = $request->metode;
+        $pengeluaran->nominal = $request->nominal;
+        $pengeluaran->deskripsi = $request->deskripsi;
+        $pengeluaran->save();
 
         return response()->json('Data berhasil ditambahkan', 200);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $pengeluaran = Pengeluaran::find($id);
@@ -82,24 +79,11 @@ class PengeluaranController extends Controller
         return response()->json($pengeluaran);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
-        //
+        // Kode untuk menampilkan formulir pengeditan pengeluaran
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $pengeluaran = Pengeluaran::find($id);
@@ -108,12 +92,6 @@ class PengeluaranController extends Controller
         return response()->json('Data berhasil disimpan', 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $pengeluaran = Pengeluaran::find($id);
