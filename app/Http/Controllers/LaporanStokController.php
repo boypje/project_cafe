@@ -18,14 +18,18 @@ class LaporanStokController extends Controller
         } else {
             $productIds = $request->productIds;
         }
-        
 
         $products = Produk::whereIn('id_produk', $productIds)->get();
 
-        $tanggalAwal = $request->tanggal_awal ?? date('Y-m-d');
-        $tanggalAkhir = $request->tanggal_akhir ?? date('Y-m-d');
+        $startDate = $request->tanggal_awal ?? date('Y-m-d');
+        $endDate = $request->tanggal_akhir ?? date('Y-m-d');
 
-        return view('laporan_stok.index', compact('tanggalAwal', 'tanggalAkhir', 'products', 'productIds'));
+        return view('laporan_stok.index', [
+            'tanggalAwal' => $startDate,
+            'tanggalAkhir' => $endDate,
+            'products' => $products,
+            'productIds' => $productIds,
+        ]);
     }
 
     public function getData($startDate, $endDate, $productIds)
@@ -93,11 +97,12 @@ class LaporanStokController extends Controller
 
     public function exportExcel(LaporanKeuanganGetRequest $request)
     {
-        $startDate = $request->input('tanggal_awal');
-        $endDate = $request->input('tanggal_akhir');
-        $productIds = $request->input('productIds');
+    $startDate = $request->input('tanggal_awal');
+    $endDate = $request->input('tanggal_akhir');
+    $productIds = $request->input('productIds');
 
-        return Excel::download(new ExportReport($startDate, $endDate, $productIds), "Laporan_Penjualan_Kasir.xlsx", \Maatwebsite\Excel\Excel::XLSX);
+    return Excel::download(new ExportReport($startDate, $endDate, $productIds), "Laporan_Penjualan_Kasir.xlsx");
     }
+
 
 }

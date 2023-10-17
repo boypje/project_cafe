@@ -4,11 +4,9 @@
         <th>Kasir</th>
         <th>Total Transaksi</th>
         <th>Total Pengunjung</th>
-        @if(isset($products))
             @foreach($products as $product)
                 <th>{{ $product->nama_produk }}</th>
             @endforeach
-        @endif
         <th>Total Terjual</th>
     </thead>
 </table>
