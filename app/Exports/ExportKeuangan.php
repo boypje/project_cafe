@@ -1,30 +1,30 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Exports;
 
-use App\Models\Modal;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
+use Illuminate\Support\Facades\DB;
 use App\Models\Pengeluaran;
 use App\Models\Penjualan;
-use Illuminate\Http\Request;
-use PDF;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ExportKeuangan;
 
-
-class LaporanController extends Controller
+class ExportKeuangan implements FromView
 {
-    public function index(Request $request)
+    private $awal;
+    private $akhir;
+
+    public function __construct($awal, $akhir)
     {
-        $tanggalAwal = date('Y-m-d', mktime(0, 0, 0, date('m'), 1, date('Y')));
-        $tanggalAkhir = date('Y-m-d');
-
-        if ($request->has('tanggal_awal') && $request->tanggal_awal != "" && $request->has('tanggal_akhir') && $request->tanggal_akhir) {
-            $tanggalAwal = $request->tanggal_awal;
-            $tanggalAkhir = $request->tanggal_akhir;
-        }
-
-        return view('laporan.index', compact('tanggalAwal', 'tanggalAkhir'));
+        $this->awal = $awal;
+        $this->akhir = $akhir;
     }
+
+    public function view(): View
+    {
+        $data = $this->getData($this->awal, $this->akhir);
+        return view('exports.laporankeuangan', ['data' => $data]);
+    }
+
 
     public function getData($awal, $akhir)
     {
@@ -88,31 +88,4 @@ class LaporanController extends Controller
 
         return $data;
     }
-
-    public function data($awal, $akhir)
-    {
-        $data = $this->getData($awal, $akhir);
-
-        return datatables()
-            ->of($data)
-            ->make(true);
-    }
-
-    public function exportPDF($awal, $akhir)
-    {
-        $data = $this->getData($awal, $akhir);
-        $pdf  = PDF::loadView('laporan.pdf', compact('awal', 'akhir', 'data'));
-        $pdf->setPaper('a4', 'landscape');
-        
-        return $pdf->stream('Laporan-pendapatan-'. date('Y-m-d-his') .'.pdf');
-    }
-
-    public function exportExcel(Request $request)
-    {
-        $awal = $request->input('tanggal_awal');
-        $akhir = $request->input('tanggal_akhir');
-
-    return Excel::download(new ExportKeuangan($awal, $akhir), "Laporan_Keuangan.xlsx");
-    }
-
 }

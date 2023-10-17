@@ -19,22 +19,11 @@
         <div class="box">
             <div class="box-header with-border">
                 <button onclick="updatePeriode()" class="btn btn-info btn-xs btn-flat"><i class="fa fa-plus-circle"></i> Ubah Periode</button>
-                <a href="{{ route('laporan.export_pdf', [$tanggalAwal, $tanggalAkhir]) }}" target="_blank" class="btn btn-success btn-xs btn-flat"><i class="fa fa-file-pdf-o"></i> Export PDF</a>
+                <a href="{{ route('laporan.export_excel', ['tanggal_awal' => $tanggalAwal, 'tanggal_akhir' => $tanggalAkhir]) }}" target="_blank" class="btn btn-success btn-xs btn-flat"><i class="fa fa-file-excel-o"></i> Export Excel</a>
+                <a href="{{ route('laporan.export_pdf', [$tanggalAwal, $tanggalAkhir]) }}" class="btn btn-danger btn-xs btn-flat" id="cetak-pdf-btn"><i class="fa fa-print"></i> Cetak PDF</a>
             </div>
             <div class="box-body table-responsive">
-                <table class="table table-stiped table-bordered">
-                    <thead>
-                        <th width="5%">No</th>
-                        <th>Tanggal</th>
-                        <th>Penjualan Tunai</th>
-                        <th>Penjualan Debit</th>
-                        <th>Total Penjualan</th>
-                        <th>Pengeluaran Tunai</th>
-                        <th>Pengeluaran Debit</th>
-                        <th>Total Pengeluaran</th>
-                        <th>Setoran</th>
-                    </thead>
-                </table>
+            @include('laporan.table', ['tanggalAwal' => $tanggalAwal, 'tanggalAkhir' => $tanggalAkhir])
             </div>
         </div>
     </div>
@@ -46,40 +35,24 @@
 @push('scripts')
 <script src="{{ asset('/AdminLTE-2/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"></script>
 <script>
-    let table;
+    $(document).ready(function() {
+        $('#cetak-pdf-btn').click(function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
 
-    $(function () {
-        $('body').addClass('sidebar-collapse');
-        table = $('.table').DataTable({
-            responsive: true,
-            processing: true,
-            serverSide: true,
-            autoWidth: false,
-            ajax: {
-                url: '{{ route('laporan.data', [$tanggalAwal, $tanggalAkhir]) }}',
-            },
-            columns: [
-                {data: 'DT_RowIndex', searchable: false, sortable: false},
-                {data: 'tanggal'},
-                {data: 'penjualan_tunai'},
-                {data: 'penjualan_debit'},
-                {data: 'penjualan'},
-                {data: 'pengeluaran_tunai'},
-                {data: 'pengeluaran_debit'},
-                {data: 'pengeluaran'},
-                {data: 'pendapatan'}
-            ],
-            dom: 'Brt',
-            bSort: false,
-            bPaginate: false,
-        });
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
 
-        $('.datepicker').datepicker({
-            format: 'yyyy-mm-dd',
-            autoclose: true
+            document.body.appendChild(iframe);
+
+            iframe.onload = function() {
+                iframe.contentWindow.print();
+            };
         });
     });
-
+</script>
+<script>
     function updatePeriode() {
         $('#modal-form').modal('show');
     }
