@@ -24,7 +24,8 @@ class ExportReport implements FromView
     public function view(): View
     {
         $data = $this->getData($this->startDate, $this->endDate, $this->productIds);
-        return view('laporan_stok.table', ['data' => $data]);
+        $products = Produk::whereIn('id_produk', $this->productIds)->get();
+        return view('exports.laporanstok', ['data' => $data, 'products' => $products]);
     }
 
     public function getData()
@@ -48,7 +49,7 @@ class ExportReport implements FromView
             ->whereIn('penjualandetail.id_produk', $this->productIds)  // Menggunakan $this->productIds
             ->whereDate("penjualan.created_at", ">=", $this->startDate)  // Menggunakan $this->startDate
             ->whereDate("penjualan.created_at", "<=", $this->endDate)  // Menggunakan $this->endDate
-            ->groupBy(DB::raw('DATE(penjualan.created_at)'),'kasir')
+            ->groupBy(DB::raw('DATE(penjualan.created_at)'), 'kasir')
             ->get();
         $totalColumns = array_map(function ($productId) {
             return "total_produk_" . $productId . "_terjual";
