@@ -22,14 +22,9 @@ class ExportReport implements FromView
 
     public function view(): View
     {
-    $data = $this->getData($this->startDate, $this->endDate, $this->productIds);
-    return view('laporan_stok.export', [
-        'products' => Produk::whereIn('id_produk', $this->productIds)->get(),
-        'data' => $data,
-        'tanggalAwal' => $this->startDate,
-        'tanggalAkhir' => $this->endDate,
-        'productIds' => $this->productIds,
-    ]);
+        $data = $this->getData($this->startDate, $this->endDate, $this->productIds);
+        $products = Produk::whereIn('id_produk', $this->productIds)->get();
+        return view('exports.laporanstok', ['data' => $data, 'products' => $products]);
     }
 
 
