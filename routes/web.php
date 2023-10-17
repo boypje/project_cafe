@@ -84,7 +84,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'level:1'], function () {
         Route::get('/laporanstok', [LaporanStokController::class, 'index'])->name('laporan_stok.index');
         Route::get('/laporanstok/data', [LaporanStokController::class, 'data'])->name('laporan_stok.data');
-        Route::get('/laporanstok/export-excel', [LaporanStokController::class, 'exportExcel'])->name('laporan_stok.export_excel');
+        Route::get('/laporan-stok/export-excel', [LaporanStokController::class, 'exportExcel'])->name('laporan_stok.export_excel');
         Route::get('/user/data', [UserController::class, 'data'])->name('user.data');
         Route::resource('/user', UserController::class);
 

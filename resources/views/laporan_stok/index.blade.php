@@ -22,7 +22,7 @@
             <div class="box-header with-border">
                 <button onclick="updatePeriode()" class="btn btn-info btn-xs btn-flat"><i class="fa fa-sliders"></i> Filter</button>
                 @if(isset($tanggalAwal) && isset($tanggalAkhir) && isset($productIds))
-                    <a href="{{ route('laporan_stok.export_excel', ['tanggal_awal' => $tanggalAwal, 'tanggal_akhir' => $tanggalAkhir, 'productIds' => $productIds]) }}" target="_blank" class="btn btn-success btn-xs btn-flat"><i class="fa fa-file-excel-o"></i> Export Excel</a>
+                <a href="{{ route('laporan_stok.export_excel', ['tanggal_awal' => $tanggalAwal, 'tanggal_akhir' => $tanggalAkhir, 'productIds' => $productIds]) }}" target="_blank" class="btn btn-success btn-xs btn-flat"><i class="fa fa-file-excel-o"></i> Export Excel</a>
                 @endif
             </div>
             <div class="box-body table-responsive">
@@ -38,6 +38,7 @@
 @push('scripts')
 <script src="{{ asset('/AdminLTE-2/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}">
 </script>
+
 <script>
 
     function updatePeriode() {

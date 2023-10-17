@@ -2,11 +2,10 @@
 
 namespace App\Exports;
 
-use App\Http\Requests\LaporanKeuanganGetRequest;
-use App\Models\Produk;
-use Maatwebsite\Excel\Concerns\FromView;
 use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 use Illuminate\Support\Facades\DB;
+use App\Models\Produk;
 
 class ExportReport implements FromView
 {
@@ -23,11 +22,18 @@ class ExportReport implements FromView
 
     public function view(): View
     {
-        $data = $this->getData($this->startDate, $this->endDate, $this->productIds);
-        return view('laporan_stok.table', ['data' => $data]);
+    $data = $this->getData($this->startDate, $this->endDate, $this->productIds);
+    return view('laporan_stok.export', [
+        'products' => Produk::whereIn('id_produk', $this->productIds)->get(),
+        'data' => $data,
+        'tanggalAwal' => $this->startDate,
+        'tanggalAkhir' => $this->endDate,
+        'productIds' => $this->productIds,
+    ]);
     }
 
-    public function getData()
+
+    public function getData($startDate, $endDate, $productIds)
     {
         $selectColumns = [
             DB::raw('DATE(penjualan.created_at) AS Tanggal'),
@@ -36,7 +42,7 @@ class ExportReport implements FromView
             DB::raw('SUM(DISTINCT CASE WHEN penjualan.metode IS NOT NULL THEN penjualan.pengunjung ELSE 0 END) AS total_pengunjung'),
         ];
 
-        foreach ($this->productIds as $productId) {  // Menggunakan $this->productIds
+        foreach ($productIds as $productId) {
             $selectColumns[] = DB::raw("SUM(CASE WHEN penjualandetail.id_produk = $productId THEN penjualandetail.jumlah ELSE 0 END) as total_produk_" . $productId . "_terjual");
         }
 
@@ -45,14 +51,14 @@ class ExportReport implements FromView
             ->select($selectColumns)
             ->join('users', 'users.id', '=', 'penjualan.id_user')
             ->join('penjualandetail', 'penjualandetail.id_penjualan', '=', 'penjualan.id_penjualan')
-            ->whereIn('penjualandetail.id_produk', $this->productIds)  // Menggunakan $this->productIds
-            ->whereDate("penjualan.created_at", ">=", $this->startDate)  // Menggunakan $this->startDate
-            ->whereDate("penjualan.created_at", "<=", $this->endDate)  // Menggunakan $this->endDate
+            ->whereIn('penjualandetail.id_produk', $productIds)
+            ->whereDate("penjualan.created_at", ">=", $startDate)
+            ->whereDate("penjualan.created_at", "<=", $endDate)
             ->groupBy(DB::raw('DATE(penjualan.created_at)'),'kasir')
             ->get();
         $totalColumns = array_map(function ($productId) {
             return "total_produk_" . $productId . "_terjual";
-        }, $this->productIds);  // Menggunakan $this->productIds
+        }, $productIds);
 
         $totals = [];
         foreach ($totalColumns as $column) {
