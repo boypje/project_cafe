@@ -4,9 +4,9 @@
         <th>Kasir</th>
         <th>Total Transaksi</th>
         <th>Total Pengunjung</th>
-            @foreach($products as $product)
-                <th>{{ $product->nama_produk }}</th>
-            @endforeach
+        @foreach ($products as $product)
+            <th>{{ $product->nama_produk }}</th>
+        @endforeach
         <th>Total Terjual</th>
     </thead>
 </table>
@@ -30,9 +30,9 @@
                 {data: 'kasir'},
                 {data: 'total_transaksi'},
                 {data: 'total_pengunjung'},
-                @foreach($productIds as $id)
+                @foreach($products as $product)
                     {
-                        data: "{{ 'total_produk_' . $id . '_terjual'}}",
+                        data: "{{ 'total_produk_' . $product->id_produk . '_terjual'}}",
                     },
                 @endforeach
                 {data: 'total_semua_produk_terjual'},
