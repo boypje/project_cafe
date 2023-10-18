@@ -28,6 +28,13 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label for="name" class="col-lg-2 control-label">Username</label>
+                        <div class="col-lg-6">
+                            <input type="text" name="email" class="form-control" id="email" required autofocus value="{{ $profil->email }}">
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label for="foto" class="col-lg-2 control-label">Profil</label>
                         <div class="col-lg-4">
                             <input type="file" name="foto" class="form-control" id="foto"

@@ -127,6 +127,7 @@ class UserController extends Controller
         $user = auth()->user();
         
         $user->name = $request->name;
+        $user->email = $request->email;
         if ($request->has('password') && $request->password != "") {
             if (Hash::check($request->old_password, $user->password)) {
                 if ($request->password == $request->password_confirmation) {
