@@ -20,7 +20,6 @@ class LaporanStokController extends Controller
         }
 
         $products = Produk::whereIn('id_produk', $productIds)->get();
-
         $startDate = $request->tanggal_awal ?? date('Y-m-d');
         $endDate = $request->tanggal_akhir ?? date('Y-m-d');
 
