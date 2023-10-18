@@ -19,10 +19,10 @@ class PengeluaranController extends Controller
         $today = Carbon::now();
 
         if ($user->level === 1) {
-            $pengeluaran = Pengeluaran::orderBy('id_pengeluaran', 'asc')->get();
+            $pengeluaran = Pengeluaran::orderBy('created_at', 'desc')->get();
         } else {
             $pengeluaran = Pengeluaran::where('id_user', $user->id)
-                ->orderBy('id_pengeluaran', 'asc')
+                ->orderBy('created_at', 'desc')
                 ->get();
         }
 

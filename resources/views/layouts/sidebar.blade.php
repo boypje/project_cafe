@@ -59,7 +59,7 @@
 
                 <li class="header">REPORT</li>
                 <li>
-                    <a href="{{ route('laporan.index') }}">
+                    <a href="#">
                         <i class="fa fa-file-pdf-o"></i> <span>Laporan Keuangan</span>
                     </a>
                 </li>

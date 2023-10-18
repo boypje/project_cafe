@@ -20,7 +20,7 @@
                 <br><br>
                 <a href="{{ route('transaksi.baru') }}" class="btn btn-success btn-lg">Transaksi Baru</a>
                 <br><br>
-                <button class="btn btn-primary btn-lg" onclick="window.open('{{ route('kasir.nota_status') }}')">&ensp;Cetak Status&ensp;</button>
+                <button class="btn btn-primary btn-lg" onclick="#">&ensp;Cetak Status&ensp;</button>
                 <br><br><br>
             </div>
         </div>
