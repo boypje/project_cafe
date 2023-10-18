@@ -52,7 +52,8 @@ class LaporanStokController extends Controller
             ->whereIn('penjualandetail.id_produk', $productIds)
             ->whereDate("penjualan.created_at", ">=", $startDate)
             ->whereDate("penjualan.created_at", "<=", $endDate)
-            ->groupBy(DB::raw('DATE(penjualan.created_at)'),'kasir')
+            ->where('penjualan.total_harga', '!=', 0)
+            ->groupBy(DB::raw('DATE(penjualan.created_at)'), 'kasir')
             ->get();
         $totalColumns = array_map(function ($productId) {
             return "total_produk_" . $productId . "_terjual";

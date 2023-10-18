@@ -99,7 +99,7 @@
                             <div class="form-group row">
                                 <label for="pengunjung" class="col-lg-3 control-label">Pengunjung</label>
                                 <div class="col-lg-8">
-                                    <input type="number" id="pengunjung" class="form-control" name="pengunjung" value="{{ $penjualan->pengunjung ?? 1 }}">
+                                <input type="number" id="pengunjung" class="form-control" name="pengunjung" value="{{ $penjualan->pengunjung ?? 1 }}">
                                 </div>
                             </div>
                             
@@ -154,7 +154,7 @@
                 </div>
                 
                 <div class="next">
-                    <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-floppy-o"></i> Simpan Transaksi</button>
+                    <button id="simpanButton" type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-floppy-o"></i> Simpan Transaksi</button>
                 </div>
 
                 <div class="back">
@@ -177,6 +177,8 @@
     function isProductSelected(productId) {
         return selectedProducts.includes(productId);
     }
+
+    
 
     $(function () {
         $('body').addClass('sidebar-collapse');
@@ -236,6 +238,32 @@
                 });
         });
 
+        $(document).ready(function () {
+    
+        const bayarInput = $('#bayar');
+        const diterimaInput = $('#diterima');
+        const diskonInput = $('#diskon');
+        const simpanButton = $('#simpanButton');
+
+        
+        function updateSimpanButton() {
+            const bayarValue = parseFloat(bayarInput.val());
+            const diterimaValue = parseFloat(diterimaInput.val());
+            const diskonValue = parseFloat(diskonInput.val());
+
+            if (diterimaValue <= 0 || diterimaValue < bayarValue || (bayarValue === 0 && diskonValue === 0)) {
+                simpanButton.prop('disabled', true);
+            } else {
+                simpanButton.prop('disabled', false);
+            }
+        }
+
+        updateSimpanButton();
+        bayarInput.on('input', updateSimpanButton);
+        diterimaInput.on('input', updateSimpanButton);
+        diskonInput.on('input', updateSimpanButton);
+        });
+
         $(document).on('input', '#diskon', function () {
             if ($(this).val() == "") {
                 $(this).val(0).select();
@@ -243,11 +271,17 @@
             loadForm($(this).val());
         });
 
+        $(document).ready(function () {
+    
+        $('#pengunjung').val(1);
+    
         $(document).on('input', '#pengunjung', function () {
-            if ($(this).val() < 1) {
-                $(this).val(1).select();
-            }
+        if ($(this).val() < 1) {
+            $(this).val(1).select();
+        }
+            });
         });
+
 
         $('#diterima').on('input', function () {
             if ($(this).val() == "") {
@@ -333,6 +367,9 @@
                 $('#kembali').val(response.kembalirp);
 
                 if ($('#diterima').val() != 0) {
+                    if($('#diterima').val() < $('#bayar').val() ){
+                        $('.tampil-bayar').text('uang tidak cukup.');
+                    }
                     $('.tampil-bayar').text('Kembali: '+ response.kembalirp);
                 }
             })
