@@ -173,12 +173,11 @@
 <script>
     let table, table2;
     let selectedProducts = [];
+    let stokProduk = @json($stok_produk);
 
     function isProductSelected(productId) {
         return selectedProducts.includes(productId);
     }
-
-    
 
     $(function () {
         $('body').addClass('sidebar-collapse');
@@ -212,31 +211,37 @@
         table2 = $('.table-produk').DataTable();
 
         $(document).on('input', '.quantity', function () {
-            let id = $(this).data('id');
-            let jumlah = parseInt($(this).val());
+        let id = $(this).data('id');
+        let jumlah = parseInt($(this).val());
+        let maxStok = stokProduk[id];
 
-            if (jumlah < 1) {
-                $(this).val(1);
-                alert('Jumlah tidak boleh kurang dari 1');
-                return;
-            }
-            if (jumlah > 10000) {
-                $(this).val(10000);
-                alert('Jumlah tidak boleh lebih dari 10000');
-                return;
-            }
+        if (jumlah < 1) {
+            $(this).val(1);
+            alert('Jumlah tidak boleh kurang dari 1');
+            return;
+        }
+        if (jumlah > maxStok) {
+            $(this).val(maxStok);
+            alert('Jumlah melebihi stok yang tersedia');
+            return;
+        }
 
-            $.post(`{{ url('/transaksi') }}/${id}`, {
-                    '_token': $('[name=csrf-token]').attr('content'),
-                    '_method': 'put',
-                    'jumlah': jumlah
-                })
-                .done(response => {
-                    $(this).on('mouseout', function () {
-                        table.ajax.reload(() => loadForm($('#diskon').val()));
-                    });
-                });
+        $.post(`{{ url('/transaksi') }}/${id}`, {
+            '_token': $('[name=csrf-token]').attr('content'),
+            '_method': 'put',
+            'jumlah': jumlah
+        })
+        .done(response => {
+            $(this).on('mouseout', function () {
+                console.log(jumlah);
+                console.log(id);
+                console.log(idProduk);
+                
+                table.ajax.reload(() => loadForm($('#diskon').val()));
+            });
         });
+    });
+
 
         $(document).ready(function () {
     
@@ -281,8 +286,6 @@
         }
             });
         });
-
-
         $('#diterima').on('input', function () {
             if ($(this).val() == "") {
                 $(this).val(0).select();
@@ -374,7 +377,6 @@
                 }
             })
             .fail(errors => {
-                alert('Tidak dapat menampilkan data');
                 return;
             });
     }

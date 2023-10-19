@@ -15,12 +15,13 @@ class PenjualanDetailController extends Controller
     {
         $produk = Produk::orderBy('nama_produk')->get();
         $diskon = Penjualan::first()->diskon;
+        $stok_produk = Produk::pluck('stok', 'id_produk')->toArray();
 
         // Cek apakah ada transaksi yang sedang berjalan
         if ($id_penjualan = session('id_penjualan')) {
             $penjualan = Penjualan::find($id_penjualan);
 
-            return view('penjualan_detail.index', compact('produk', 'id_penjualan', 'diskon', 'penjualan'));
+            return view('penjualan_detail.index', compact('produk', 'id_penjualan', 'diskon', 'penjualan', 'stok_produk'));
         } else {
             if (auth()->user()->level == 1) {
                 return redirect()->route('transaksi.baru');

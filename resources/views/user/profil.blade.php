@@ -28,7 +28,7 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="name" class="col-lg-2 control-label">Username</label>
+                        <label for "name" class="col-lg-2 control-label">Username</label>
                         <div class="col-lg-6">
                             <input type="text" name="email" class="form-control" id="email" required autofocus value="{{ $profil->email }}">
                             <span class="help-block with-errors"></span>
@@ -37,13 +37,13 @@
                     <div class="form-group row">
                         <label for="foto" class="col-lg-2 control-label">Profil</label>
                         <div class="col-lg-4">
-                            <input type="file" name="foto" class="form-control" id="foto"
-                                onchange="preview('.tampil-foto', this.files[0])">
+                            <input type="file" name="foto" class="form-control" id="foto" onchange="cropAndPreview('.tampil-foto', this)">
                             <span class="help-block with-errors"></span>
                             <br>
                             <div class="tampil-foto">
                                 <img src="{{ url($profil->foto ?? '/') }}" width="200">
                             </div>
+                            <canvas id="crop-canvas" style="display: none;"></canvas>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -82,6 +82,35 @@
 
 @push('scripts')
 <script>
+        function cropAndPreview(target, input) {
+        const file = input.files[0];
+        const canvas = document.getElementById('crop-canvas');
+        const ctx = canvas.getContext('2d');
+
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+
+        img.onload = function() {
+            const minSize = Math.min(img.width, img.height);
+            canvas.width = minSize;
+            canvas.height = minSize;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.arc(minSize / 2, minSize / 2, minSize / 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+            ctx.drawImage(img, 0, 0, minSize, minSize);
+
+            const dataURL = canvas.toDataURL('image/png');
+            const preview = document.querySelector(target + ' img');
+            preview.src = dataURL;
+
+            // Jika Anda ingin mengirim dataURL ke server, tambahkan kode pengiriman di sini
+        };
+    }
+
+
     $(function () {
         $('#old_password').on('keyup', function () {
             if ($(this).val() != "") $('#password, #password_confirmation').attr('required', true);
