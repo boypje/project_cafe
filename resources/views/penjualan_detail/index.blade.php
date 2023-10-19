@@ -211,9 +211,10 @@
         table2 = $('.table-produk').DataTable();
 
         $(document).on('input', '.quantity', function (e) {
-            let id = $(this).data('id_produk');
+            let id = $(this).data('id');
+            let produkId = $(this).data('id_produk');
             let jumlah = parseInt($(this).val());
-            let maxStok = stokProduk[id];
+            let maxStok = stokProduk[produkId];
 
             if (jumlah < 1) {
                 $(this).val(1);
