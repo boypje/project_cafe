@@ -232,11 +232,7 @@
             'jumlah': jumlah
         })
         .done(response => {
-            $(this).on('mouseout', function () {
-                console.log(jumlah);
-                console.log(id);
-                console.log(idProduk);
-                
+            $(this).on('mouseout', function () {      
                 table.ajax.reload(() => loadForm($('#diskon').val()));
             });
         });
