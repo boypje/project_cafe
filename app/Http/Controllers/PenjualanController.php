@@ -18,53 +18,53 @@ class PenjualanController extends Controller
 
     public function data()
     {
-    $penjualan = Penjualan::where('total_harga', '>', 0)
-        ->orderBy('id_penjualan', 'desc')
-        ->get();
+        $penjualan = Penjualan::where('total_harga', '>', 0)
+            ->orderBy('id_penjualan', 'desc')
+            ->get();
 
-    return datatables()
-        ->of($penjualan)
-        ->addIndexColumn()
-        ->addColumn('id_penjualan', function ($penjualan) {
-            return tambah_nol_didepan($penjualan->id_penjualan, 10);
-        })
-        ->addColumn('metode', function ($penjualan) {
-            return $penjualan->metode;
-        })
-        ->addColumn('total_harga', function ($penjualan) {
-            return format_money($penjualan->total_harga);
-        })
-        ->editColumn('diskon', function ($penjualan) {
-            return format_money($penjualan->diskon);
-        })
-        ->addColumn('bayar', function ($penjualan) {
-            return format_money($penjualan->bayar);
-        })
-        ->addColumn('tanggal', function ($penjualan) {
-            return tanggal_indonesia($penjualan->created_at, false);
-        })
-        ->editColumn('kasir', function ($penjualan) {
-            return $penjualan->user->name ?? '';
-        })
-        ->addColumn('aksi', function ($penjualan) {
-            return '
+        return datatables()
+            ->of($penjualan)
+            ->addIndexColumn()
+            ->addColumn('id_penjualan', function ($penjualan) {
+                return tambah_nol_didepan($penjualan->id_penjualan, 10);
+            })
+            ->addColumn('metode', function ($penjualan) {
+                return $penjualan->metode;
+            })
+            ->addColumn('total_harga', function ($penjualan) {
+                return format_money($penjualan->total_harga);
+            })
+            ->editColumn('diskon', function ($penjualan) {
+                return format_money($penjualan->diskon);
+            })
+            ->addColumn('bayar', function ($penjualan) {
+                return format_money($penjualan->bayar);
+            })
+            ->addColumn('tanggal', function ($penjualan) {
+                return tanggal_indonesia($penjualan->created_at, false);
+            })
+            ->editColumn('kasir', function ($penjualan) {
+                return $penjualan->user->name ?? '';
+            })
+            ->addColumn('aksi', function ($penjualan) {
+                return '
             
-                <button onclick="showDetail(`'. route('penjualan.show', $penjualan->id_penjualan) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-eye"></i></button>
-                <button onclick="deleteData(`'. route('penjualan.destroy', $penjualan->id_penjualan) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                <button onclick="showDetail(`' . route('penjualan.show', $penjualan->id_penjualan) . '`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-eye"></i></button>
+                <button onclick="deleteData(`' . route('penjualan.destroy', $penjualan->id_penjualan) . '`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
             
             ';
-        })
-        ->rawColumns(['aksi'])
-        ->make(true);
-}
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
 
 
     public function create()
     {
         $penjualan = new Penjualan();
         $penjualan->total_item = 0;
-        $penjualan->metode="";
-        $penjualan->pengunjung=0;
+        $penjualan->metode = "";
+        $penjualan->pengunjung = 0;
         $penjualan->total_harga = 0;
         $penjualan->diskon = 0;
         $penjualan->bayar = 0;
@@ -154,13 +154,13 @@ class PenjualanController extends Controller
     {
         $setting = Setting::first();
         $penjualan = Penjualan::find(session('id_penjualan'));
-        if (! $penjualan) {
+        if (!$penjualan) {
             abort(404);
         }
         $detail = PenjualanDetail::with('produk')
             ->where('id_penjualan', session('id_penjualan'))
             ->get();
-        
+
         return view('penjualan.nota_kecil', compact('setting', 'penjualan', 'detail'));
     }
 }

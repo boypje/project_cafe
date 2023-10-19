@@ -104,7 +104,7 @@
                             </div>
                             
                             <div class="form-group row">
-                                <label for "totalrp" class="col-lg-3 control-label">Total</label>
+                                <label for="totalrp" class="col-lg-3 control-label">Total</label>
                                 <div class="col-lg-8">
                                     <input type="text" id="totalrp" class="form-control" readonly>
                                 </div>
@@ -210,59 +210,59 @@
         });
         table2 = $('.table-produk').DataTable();
 
-        $(document).on('input', '.quantity', function () {
-        let id = $(this).data('id');
-        let jumlah = parseInt($(this).val());
-        let maxStok = stokProduk[id];
+        $(document).on('input', '.quantity', function (e) {
+            let id = $(this).data('id_produk');
+            let jumlah = parseInt($(this).val());
+            let maxStok = stokProduk[id];
 
-        if (jumlah < 1) {
-            $(this).val(1);
-            alert('Jumlah tidak boleh kurang dari 1');
-            return;
-        }
-        if (jumlah > maxStok) {
-            $(this).val(maxStok);
-            alert('Jumlah melebihi stok yang tersedia');
-            return;
-        }
+            if (jumlah < 1) {
+                $(this).val(1);
+                alert('Jumlah tidak boleh kurang dari 1');
+                return;
+            }
+            if (jumlah > maxStok) {
+                $(this).val(maxStok);
+                alert('Jumlah melebihi stok yang tersedia');
+                return;
+            }
 
-        $.post(`{{ url('/transaksi') }}/${id}`, {
-            '_token': $('[name=csrf-token]').attr('content'),
-            '_method': 'put',
-            'jumlah': jumlah
-        })
-        .done(response => {
-            $(this).on('mouseout', function () {      
-                table.ajax.reload(() => loadForm($('#diskon').val()));
+            $.post(`{{ url('/transaksi') }}/${id}`, {
+                '_token': $('[name=csrf-token]').attr('content'),
+                '_method': 'put',
+                'jumlah': jumlah
+            })
+            .done(response => {
+                $(this).on('mouseout', function () {      
+                    table.ajax.reload(() => loadForm($('#diskon').val()));
+                });
             });
         });
-    });
 
 
         $(document).ready(function () {
-    
-        const bayarInput = $('#bayar');
-        const diterimaInput = $('#diterima');
-        const diskonInput = $('#diskon');
-        const simpanButton = $('#simpanButton');
-
         
-        function updateSimpanButton() {
-            const bayarValue = parseFloat(bayarInput.val());
-            const diterimaValue = parseFloat(diterimaInput.val());
-            const diskonValue = parseFloat(diskonInput.val());
+            const bayarInput = $('#bayar');
+            const diterimaInput = $('#diterima');
+            const diskonInput = $('#diskon');
+            const simpanButton = $('#simpanButton');
 
-            if (diterimaValue <= 0 || diterimaValue < bayarValue || (bayarValue === 0 && diskonValue === 0)) {
-                simpanButton.prop('disabled', true);
-            } else {
-                simpanButton.prop('disabled', false);
+            
+            function updateSimpanButton() {
+                const bayarValue = parseFloat(bayarInput.val());
+                const diterimaValue = parseFloat(diterimaInput.val());
+                const diskonValue = parseFloat(diskonInput.val());
+
+                if (diterimaValue <= 0 || diterimaValue < bayarValue || (bayarValue === 0 && diskonValue === 0)) {
+                    simpanButton.prop('disabled', true);
+                } else {
+                    simpanButton.prop('disabled', false);
+                }
             }
-        }
 
-        updateSimpanButton();
-        bayarInput.on('input', updateSimpanButton);
-        diterimaInput.on('input', updateSimpanButton);
-        diskonInput.on('input', updateSimpanButton);
+            updateSimpanButton();
+            bayarInput.on('input', updateSimpanButton);
+            diterimaInput.on('input', updateSimpanButton);
+            diskonInput.on('input', updateSimpanButton);
         });
 
         $(document).on('input', '#diskon', function () {
@@ -274,12 +274,12 @@
 
         $(document).ready(function () {
     
-        $('#pengunjung').val(1);
-    
-        $(document).on('input', '#pengunjung', function () {
-        if ($(this).val() < 1) {
-            $(this).val(1).select();
-        }
+            $('#pengunjung').val(1);
+        
+            $(document).on('input', '#pengunjung', function (e) {
+                if ($(this).val() < 1) {
+                    $(this).val(1).select();
+                }
             });
         });
         $('#diterima').on('input', function () {
