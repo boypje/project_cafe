@@ -46,6 +46,8 @@
 
             document.body.appendChild(iframe);
 
+            table.ajax.reload();
+
             iframe.onload = function() {
                 iframe.contentWindow.print();
             };
