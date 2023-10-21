@@ -20,7 +20,7 @@
                 <br><br>
                 <a href="{{ route('transaksi.baru') }}" class="btn btn-success btn-lg">Transaksi Baru</a>
                 <br><br>
-                <button class="btn btn-primary btn-lg" onclick="#">&ensp;Cetak Status&ensp;</button>
+                <a href="{{ route('kasir.nota_status') }}" class="btn btn-primary btn-lg" id="status">&ensp;Cetak Status&ensp;</a>
                 <br><br><br>
             </div>
         </div>
@@ -28,3 +28,24 @@
 </div>
 <!-- /.row (main row) -->
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#status').click(function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+
+            document.body.appendChild(iframe);
+
+            iframe.onload = function() {
+                iframe.contentWindow.print();
+            };
+        });
+    });
+</script>
+@endpush

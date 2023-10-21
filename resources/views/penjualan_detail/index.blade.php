@@ -218,12 +218,12 @@
 
             if (jumlah < 1) {
                 $(this).val(1);
-                alert('Jumlah tidak boleh kurang dari 1');
+                Swal.fire('Peringatan!', 'Jumlah tidak boleh kurang dari 1!', 'warning');
                 return;
             }
             if (jumlah > maxStok) {
                 $(this).val(maxStok);
-                alert('Jumlah melebihi stok yang tersedia');
+                Swal.fire('Peringatan!', 'Jumlah tidak boleh lebih dari stok yang tersedia!', 'warning');
                 return;
             }
 
@@ -306,7 +306,7 @@
     function pilihProduk(id, nama) {
         let id_produk = $('#id_produk').val();
         if (isProductSelected(id)) {
-            alert('Menu ini sudah dipilih dalam transaksi ini.');
+            Swal.fire('Peringatan!', 'Menu ini sudah dipilih!', 'warning');
         } else {
             $('#id_produk').val(id);
             $('#nama_produk').val(nama);
@@ -318,7 +318,7 @@
     let id_produk = $('#id_produk').val();
 
     if (isProductSelected(id_produk)) {
-        alert('Menu ini sudah dipilih dalam transaksi ini.');
+        Swal.fire('Peringatan!', 'Menu ini sudah dipilih!', 'warning');
         return;
     }
 
@@ -348,7 +348,7 @@
                     table.ajax.reload(() => loadForm($('#diskon').val()));
                 })
                 .fail((errors) => {
-                    alert('Tidak dapat menghapus data');
+                    Swal.fire('Gagal!', 'Tidak dapat menghapus data!', 'error');
                     return;
                 });
         }

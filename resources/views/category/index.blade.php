@@ -61,9 +61,19 @@
                     .done((response) => {
                         $('#modal-form').modal('hide');
                         table.ajax.reload();
+                        
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Data Berhasil Disimpan',
+                            icon: 'success'
+                        });
                     })
                     .fail((errors) => {
-                        alert('Tidak dapat menyimpan data');
+                        Swal.fire({
+                            title: 'Failed',
+                            text: 'Tidak Dapat Menyimpan Data',
+                            icon: 'warning'
+                        });
                         return;
                     });
             }
@@ -100,19 +110,31 @@
     }
 
     function deleteData(url) {
-        if (confirm('Yakin ingin menghapus data terpilih?')) {
-            $.post(url, {
+        Swal.fire({
+            title: 'Yakin ingin menghapus data terpilih?',
+            text: "Tindakan ini tidak dapat dibatalkan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post(url, {
                     '_token': $('[name=csrf-token]').attr('content'),
                     '_method': 'delete'
                 })
                 .done((response) => {
+                    Swal.fire('Berhasil!', 'Data telah dihapus.', 'success');
                     table.ajax.reload();
                 })
                 .fail((errors) => {
-                    alert('Tidak dapat menghapus data');
-                    return;
+                    Swal.fire('Gagal!', 'Tidak dapat menghapus data.', 'error');
                 });
-        }
+            }
+        });
     }
+
 </script>
 @endpush

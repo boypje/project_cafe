@@ -17,8 +17,8 @@
                             <input type="text" name="nama_produk" id="nama_produk" class="form-control" required autofocus
                                 @if (auth()->user()->level != 1) readonly
                                 @else
-                                pattern="[A-Za-z\s]+" title="Hanya huruf yang diperbolehkan"
-                                oninput="this.value = this.value.replace(/[^A-Za-z\s]+/g, '')"
+                                pattern="[A-Za-z0-9\s]+" title="Hanya huruf yang diperbolehkan"
+                                oninput="this.value = this.value.replace(/[^A-Za-z0-9\s]+/g, '')"
                                 @endif>
                             <span class="help-block with-errors"></span>
                         </div>

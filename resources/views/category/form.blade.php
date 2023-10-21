@@ -1,3 +1,7 @@
+<script src="{{ asset('js/sweetalert2.min.js') }}"></script>
+<link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}">
+<link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+
 <div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form">
     <div class="modal-dialog modal-lg" role="document">
         <form action="" method="post" class="form-horizontal">
@@ -20,7 +24,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-save"></i> Simpan</button>
+                    <button class="btn btn-sm btn-flat btn-primary" id="simpan"><i class="fa fa-save"></i> Simpan</button>
                     <button type="button" class="btn btn-sm btn-flat btn-warning" data-dismiss="modal"><i class="fa fa-arrow-circle-left"></i> Batal</button>
                 </div>
             </div>
@@ -57,3 +61,4 @@
 
 
 </style>
+

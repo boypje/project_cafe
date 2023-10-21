@@ -19,7 +19,7 @@
         <div class="box">
             <div class="box-header with-border">
                 <button onclick="updatePeriode()" class="btn btn-info btn-xs btn-flat"><i class="fa fa-plus-circle"></i> Ubah Periode</button>
-                <a href="{{ route('laporan.export_excel', ['tanggal_awal' => $tanggalAwal, 'tanggal_akhir' => $tanggalAkhir]) }}" target="_blank" class="btn btn-success btn-xs btn-flat"><i class="fa fa-file-excel-o"></i> Export Excel</a>
+                <a href="{{ route('laporan.export_excel', ['tanggal_awal' => $tanggalAwal, 'tanggal_akhir' => $tanggalAkhir]) }}" id="excel" class="btn btn-success btn-xs btn-flat"><i class="fa fa-file-excel-o"></i> Export Excel</a>
                 <a href="{{ route('laporan.export_pdf', [$tanggalAwal, $tanggalAkhir]) }}" class="btn btn-danger btn-xs btn-flat" id="cetak-pdf-btn"><i class="fa fa-print"></i> Cetak PDF</a>
             </div>
             <div class="box-body table-responsive">
@@ -58,5 +58,11 @@
     function updatePeriode() {
         $('#modal-form').modal('show');
     }
+</script>
+<script>
+    const excel = document.getElementById('excel');
+    excel.addEventListener('click', function(){
+        Swal.fire('Success', 'Berhasil Export', 'success');
+    })
 </script>
 @endpush

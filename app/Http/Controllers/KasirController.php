@@ -31,22 +31,36 @@ class KasirController extends Controller
             )
             ->join('users', 'users.id', '=', 'penjualan.id_user')
             ->join('penjualandetail', 'penjualandetail.id_penjualan', '=', 'penjualan.id_penjualan')
-            ->where("users.id", '=', $user)
             ->whereDate("penjualan.created_at",  "=", $now)
             ->groupBy(DB::raw('DATE(penjualan.created_at)'))
+            ->where("users.id", '=', $user)
             ->get();
             $total_pengunjung = $trx->sum("total_pengunjung");
             $total_transaksi = $trx->sum("total_transaksi");
-            $tunai = Penjualan::where('metode', "=", "Tunai")
-            ->where('created_at', 'LIKE', "%$now%")->sum('bayar');
-            $debit = Penjualan::where('metode', "=", "Debit")
-            ->where('created_at', 'LIKE', "%$now%")->sum('bayar');
-            $jual = Penjualan::where('created_at', 'LIKE', "%$now%")->sum('bayar');
+            $tunai = Penjualan::where('metode', '=', 'Tunai')
+            ->where('created_at', 'LIKE', "%$now%")
+            ->where('id_user', '=', $user)
+            ->sum('bayar');
+            $debit = Penjualan::where('metode', '=', 'Debit')
+            ->where('created_at', 'LIKE', "%$now%")
+            ->where('id_user', '=', $user)
+            ->sum('bayar');
+            $jual = Penjualan::where('created_at', 'LIKE', "%$now")
+              ->where('id_user', '=', $user)
+              ->sum('bayar');
             $pengeluaran_tunai = Pengeluaran::where('metode', "=", "Tunai")
-            ->where('created_at', 'LIKE', "%$now%")->sum('nominal');
+            ->where('created_at', 'LIKE', "%$now")
+            ->where('id_user', '=', $user)
+            ->sum('nominal');
+
             $pengeluaran_debit = Pengeluaran::where('metode', "=", "Debit")
-            ->where('created_at', 'LIKE', "%$now%")->sum('nominal');
-            $total_pengeluaran = Pengeluaran::where('created_at', 'LIKE', "%$now%")->sum('nominal');
+            ->where('created_at', 'LIKE', "%$now")
+            ->where('id_user', '=', $user)
+            ->sum('nominal');
+
+            $total_pengeluaran = Pengeluaran::where('created_at', 'LIKE', "%$now")
+            ->where('id_user', '=', $user)
+            ->sum('nominal');
             $setoran = $jual - $total_pengeluaran;
 
         return view('kasir.nota_status', compact('setting','total_pengunjung','total_transaksi','tunai', 'debit', 'jual', 'pengeluaran_tunai', 'pengeluaran_debit', 'total_pengeluaran', 'setoran'));
