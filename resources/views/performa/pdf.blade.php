@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Laporan Keuangan</title>
 
     <link rel="stylesheet" href="{{ asset('/AdminLTE-2/bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
@@ -19,22 +18,39 @@
     <table class="table table-striped">
         <thead>
             <tr>
-            <th>Tanggal</th> 
-            <th>Kasir</th>                     
-            <th>Total Transaksi</th>            
-            <th>Transaksi Sukses</th>
-            <th>Transaksi Salah</th>
-            <th>Total Pengunjung</th>
+                <th>No</th>
+                <th>Tanggal</th>
+                <th>Kasir</th>
+                <th>Total Transaksi</th>
+                <th>Transaksi Sukses</th>
+                <th>Transaksi Salah</th>
+                <th>Total Pengunjung</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($data as $row)
-                <tr>
-                    @foreach ($row as $col)
-                        <td>{{ $col }}</td>
-                    @endforeach
-                </tr>
-            @endforeach
+        @foreach ($data as $trx)
+        <tr>
+            @if (is_object($trx))
+                <td>{{ $trx->Nomor ?? ''}}</td>
+                <td>{{ $trx->Tanggal ?? '' }}</td>
+                <td>{{ $trx->kasir ?? '-'}}</td>
+                <td>{{ $trx->total_transaksi ?? '-' }}</td>
+                <td>{{ $trx->transaksi_sukses ?? '-'}}</td>
+                <td>{{ $trx->transaksi_salah ?? '-'}}</td>
+                <td>{{ $trx->total_pengunjung ?? '-'}}</td>
+            @else
+                <td>{{ $trx['Nomor'] }}</td>
+                <td>{{ $trx['Tanggal'] ?? '' }}</td>
+                <td>{{ $trx['kasir'] ?? '-'}}</td>
+                <td>{{ $trx['total_transaksi'] ?? '-' }}</td>
+                <td>{{ $trx['transaksi_sukses'] ?? '-'}}</td>
+                <td>{{ $trx['transaksi_salah'] ?? '-'}}</td>
+                <td>{{ $trx['total_pengunjung'] ?? '-'}}</td>
+            @endif
+
+        </tr>
+
+        @endforeach
         </tbody>
     </table>
 </body>

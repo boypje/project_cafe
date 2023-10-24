@@ -86,8 +86,11 @@ class PerformaController extends Controller
             ->make(true);
     }
 
-    public function exportPDF($awal, $akhir, $user_id)
+    public function exportPDF(Request $request)
     {
+        $awal = $request->input('tanggal_awal');
+        $akhir = $request->input('tanggal_akhir');
+        $user_id = $request->input('user_id', 'all');
         $data = $this->getData($awal, $akhir, $user_id);
         $pdf  = PDF::loadView('performa.pdf', compact('awal', 'akhir', 'data'));
         $pdf->setPaper('a4', 'landscape');

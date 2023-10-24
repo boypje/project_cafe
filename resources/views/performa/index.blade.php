@@ -20,7 +20,7 @@
             <div class="box-header with-border">
                 <button onclick="updatePeriode()" class="btn btn-info btn-xs btn-flat"><i class="fa fa-sliders"></i> Filter</button>
                 <a href="{{ route('performa.export_excel', ['tanggal_awal' => $tanggalAwal, 'tanggal_akhir' => $tanggalAkhir, 'user_id' => $user_id]) }}" id="excel" class="btn btn-success btn-xs btn-flat"><i class="fa fa-file-excel-o"></i> Export Excel</a>
-                <a href="{{ route('performa.export_pdf', [$tanggalAwal, $tanggalAkhir, $user_id]) }}" class="btn btn-danger btn-xs btn-flat" id="cetak-pdf-btn"><i class="fa fa-print"></i> Cetak PDF</a>
+                <a href="{{ route('performa.export_pdf', ['tanggal_awal' => $tanggalAwal, 'tanggal_akhir' => $tanggalAkhir, 'user_id' => $user_id]) }}" class="btn btn-danger btn-xs btn-flat" id="cetak-pdf-btn"><i class="fa fa-print"></i> Cetak PDF</a>
             </div>
             <div class="box-body table-responsive">
             @include('performa.table', ['tanggalAwal' => $tanggalAwal, 'tanggalAkhir' => $tanggalAkhir])
