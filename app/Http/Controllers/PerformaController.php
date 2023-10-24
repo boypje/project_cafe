@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use PDF;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
-use App\Exports\ExportPeforma;
+use App\Exports\ExportPerforma;
 
 
 class PerformaController extends Controller
@@ -68,7 +68,7 @@ class PerformaController extends Controller
         $totals['Tanggal'] = '';
         $totals['kasir'] = 'Total';
 
-        $trx[] = (object) $totals;
+        $trx[] = $totals;
         return $trx;
     }
 
@@ -95,7 +95,7 @@ class PerformaController extends Controller
         $awal = $request->input('tanggal_awal');
         $akhir = $request->input('tanggal_akhir');
 
-    return Excel::download(new ExportPerforma($awal, $akhir), "Laporan_Performa_Kasir.xlsx");
+        return Excel::download(new ExportPerforma($awal, $akhir), "Laporan_Performa_Kasir.xlsx");
     }
 
 }

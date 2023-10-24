@@ -37,6 +37,11 @@
         "files": [
             "app/Http/Helpers/helpers.php"
 
+        ],
+        "classmap": [
+            "database/seeds",
+            "database/factories",
+            "app/Exports"
         ]
     },
     "autoload-dev": {
