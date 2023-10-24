@@ -17,7 +17,7 @@ class ExportPerforma implements FromView, ShouldAutoSize, WithStyles
     private $awal;
     private $akhir;
     private $user_id;
-    
+
     public function __construct($awal, $akhir, $user_id)
     {
         $this->awal = $awal;
@@ -28,7 +28,7 @@ class ExportPerforma implements FromView, ShouldAutoSize, WithStyles
     public function view(): View
     {
         $data = $this->getData($this->awal, $this->akhir, $this->user_id);
-        
+
         return view('exports.laporanperforma', ['data' => $data]);
     }
 
@@ -64,40 +64,42 @@ class ExportPerforma implements FromView, ShouldAutoSize, WithStyles
     }
 
     public function getData($awal, $akhir, $user_id)
-{
-    $selectColumns = [
-        DB::raw('DATE(penjualan.created_at) AS Tanggal'),
-        'users.name AS kasir',
-        DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL THEN penjualan.id_penjualan ELSE 0 END) AS total_transaksi'),
-        DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL AND penjualan.status = "SUKSES" THEN penjualan.id_penjualan END) AS transaksi_sukses'),
-        DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL AND penjualan.status = "SALAH" THEN penjualan.id_penjualan END) AS transaksi_salah'),
-        DB::raw('SUM(CASE WHEN penjualan.metode IS NOT NULL THEN penjualan.pengunjung ELSE 0 END) AS total_pengunjung'),
-    ];
+    {
+        $selectColumns = [
+            DB::raw('DATE(penjualan.created_at) AS Tanggal'),
+            'users.name AS kasir',
+            DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL THEN penjualan.id_penjualan ELSE 0 END) AS total_transaksi'),
+            DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL AND penjualan.status = "SUKSES" THEN penjualan.id_penjualan END) AS transaksi_sukses'),
+            DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL AND penjualan.status = "SALAH" THEN penjualan.id_penjualan END) AS transaksi_salah'),
+            DB::raw('SUM(CASE WHEN penjualan.metode IS NOT NULL THEN penjualan.pengunjung ELSE 0 END) AS total_pengunjung'),
+        ];
 
-    $trx = DB::table('penjualan')
-        ->select($selectColumns)
-        ->leftJoin('users', 'users.id', '=', 'penjualan.id_user')
-        ->whereDate("penjualan.created_at", ">=", $awal)
-        ->whereDate("penjualan.created_at", "<=", $akhir)
-        ->where('penjualan.total_harga', '!=', 0);
+        $trx = DB::table('penjualan')
+            ->select($selectColumns)
+            ->leftJoin('users', 'users.id', '=', 'penjualan.id_user')
+            ->whereDate("penjualan.created_at", ">=", $awal)
+            ->whereDate("penjualan.created_at", "<=", $akhir)
+            ->where('penjualan.total_harga', '!=', 0);
 
-    for ($i = 0; $i <= 500; $i++) {
-        if ($user_id == $i) {
-            $trx->where('penjualan.id_user', $user_id);
+        if ($user_id == 'all') {
+            $trx->where('penjualan.id_user', '!=', 0);
+        } else {
+            for ($i = 0; $i <= 500; $i++) {
+                if ($user_id == $i) {
+                    $trx->where('penjualan.id_user', $user_id);
+                }
+            }
         }
+
+        $trx = $trx->groupBy(DB::raw('DATE(penjualan.created_at)'), 'kasir')
+            ->get();
+
+        $trx->transform(function ($item, $key) {
+            $item->Nomor = $key + 1;
+            $item->Tanggal = tanggal_indonesia($item->Tanggal, false);
+            return $item;
+        });
+
+        return $trx;
     }
-
-    $trx = $trx->groupBy(DB::raw('DATE(penjualan.created_at)'), 'kasir')
-        ->get();
-
-    $trx->transform(function ($item, $key) {
-        $item->Nomor = $key + 1;
-        $item->Tanggal = tanggal_indonesia($item->Tanggal, false);
-        return $item;
-    });
-
-    return $trx;
-}
-
-
 }
