@@ -3,8 +3,6 @@
         <tr>
             <th>Tanggal</th>
             <th>Kasir</th>
-            <th>Total Transaksi</th>
-            <th>Total Pengunjung</th>
             @foreach($products as $product)
             <th>{{ $product->nama_produk }}</th>
             @endforeach
@@ -17,8 +15,6 @@
         <tr>
             <td>{{ $trx['Tanggal'] }}</td>
             <td>{{ $trx['kasir'] }}</td>
-            <td>{{ $trx['total_transaksi'] }}</td>
-            <td>{{ $trx['total_pengunjung'] }}</td>
             @foreach ($products as $product)
             @php
             $columnName = 'total_produk_' . $product->id_produk . '_terjual';
@@ -32,8 +28,6 @@
         <tr>
             <td>{{ $trx->Tanggal }}</td>
             <td>{{ $trx->kasir }}</td>
-            <td>{{ $trx->total_transaksi }}</td>
-            <td>{{ $trx->total_pengunjung }}</td>
             @foreach ($products as $product)
             @php
             $columnName = 'total_produk_' . $product->id_produk . '_terjual';

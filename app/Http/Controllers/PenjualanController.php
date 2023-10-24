@@ -43,18 +43,25 @@ class PenjualanController extends Controller
             ->addColumn('tanggal', function ($penjualan) {
                 return tanggal_indonesia($penjualan->created_at, false);
             })
+            ->addColumn('status', function ($penjualan) {
+                if ($penjualan->status === 'SUKSES') {
+                    return '<small class="label label-success">' . $penjualan->status . '</small>';
+                } elseif ($penjualan->status === 'SALAH') {
+                    return '<small class="label label-warning">' . $penjualan->status . '</small>';
+                }
+            })
             ->editColumn('kasir', function ($penjualan) {
                 return $penjualan->user->name ?? '';
             })
             ->addColumn('aksi', function ($penjualan) {
                 return '
-            
-                <button onclick="showDetail(`' . route('penjualan.show', $penjualan->id_penjualan) . '`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-eye"></i></button>
+                <button onclick="showDetail(`' . route('penjualan.show', $penjualan->id_penjualan) . '`)" class="btn btn-xs btn-success btn-flat"><i class="fa fa-eye"></i></button>
+                <button onclick="editForm(`'. route('penjualan.update', $penjualan->id_penjualan) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
                 <button onclick="deleteData(`' . route('penjualan.destroy', $penjualan->id_penjualan) . '`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
             
             ';
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['status','aksi'])
             ->make(true);
     }
 
@@ -69,6 +76,7 @@ class PenjualanController extends Controller
         $penjualan->diskon = 0;
         $penjualan->bayar = 0;
         $penjualan->diterima = 0;
+        $penjualan->status = "";
         $penjualan->id_user = auth()->id();
         $penjualan->save();
 
@@ -86,9 +94,8 @@ class PenjualanController extends Controller
         $penjualan->diskon = $request->diskon;
         $penjualan->bayar = $request->bayar;
         $penjualan->diterima = $request->diterima;
+        $penjualan->status = "SUKSES";
         $penjualan->update();
-
-
 
         $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
         foreach ($detail as $item) {
@@ -148,6 +155,28 @@ class PenjualanController extends Controller
         $setting = Setting::first();
 
         return view('penjualan.selesai', compact('setting'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $penjualan = Penjualan::find($id);
+        $penjualan->status = $request->status;
+        
+        $detail    = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
+        if($penjualan->status = "SALAH"){
+            foreach ($detail as $item) {
+                $produk = Produk::find($item->id_produk);
+                if ($produk) {
+                    $produk->stok += $item->jumlah;
+                    $produk->update();
+                }
+    
+                $item->delete();
+            }
+        }
+        $penjualan->update();
+
+        return response()->json('Data berhasil disimpan', 200);
     }
 
     public function notaKecil()

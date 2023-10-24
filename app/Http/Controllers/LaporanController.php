@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Modal;
 use App\Models\Pengeluaran;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
@@ -42,18 +41,30 @@ class LaporanController extends Controller
             $tanggal = $awal;
             $awal = date('Y-m-d', strtotime("+1 day", strtotime($awal)));
 
-            $penjualan_tunai = Penjualan::where('metode', "=", "Tunai")
-                                            ->where('created_at', 'LIKE', "%$tanggal%")->sum('bayar');
-            $penjualan_debit = Penjualan::where('metode', "=", "Debit")
-                                            ->where('created_at', 'LIKE', "%$tanggal%")->sum('bayar');
+            $penjualan_tunai = Penjualan::where('metode', '=', 'Tunai')
+            ->where('created_at', 'LIKE', "%$tanggal%")
+            ->where('status', '=', 'SUKSES')
+            ->sum('bayar');
 
-            $pengeluaran_tunai = Pengeluaran::where('metode', "=", "Tunai")
-                                            ->where('created_at', 'LIKE', "%$tanggal%")->sum('nominal');
-            $pengeluaran_debit = Pengeluaran::where('metode', "=", "Debit")
-                                            ->where('created_at', 'LIKE', "%$tanggal%")->sum('nominal');
+            $penjualan_debit = Penjualan::where('metode', '=', 'Debit')
+                ->where('created_at', 'LIKE', "%$tanggal%")
+                ->where('status', '=', 'SUKSES')
+                ->sum('bayar');
 
-            $total_penjualan = Penjualan::where('created_at', 'LIKE', "%$tanggal%")->sum('bayar');
-            $total_pengeluaran = Pengeluaran::where('created_at', 'LIKE', "%$tanggal%")->sum('nominal');
+            $pengeluaran_tunai = Pengeluaran::where('metode', '=', 'Tunai')
+                ->where('created_at', 'LIKE', "%$tanggal%")
+                ->sum('nominal');
+
+            $pengeluaran_debit = Pengeluaran::where('metode', '=', 'Debit')
+                ->where('created_at', 'LIKE', "%$tanggal%")
+                ->sum('nominal');
+
+            $total_penjualan = Penjualan::where('created_at', 'LIKE', "%$tanggal%")
+                ->where('status', '=', 'SUKSES')
+                ->sum('bayar');
+
+            $total_pengeluaran = Pengeluaran::where('created_at', 'LIKE', "%$tanggal%")
+                ->sum('nominal');
 
             $pendapatan = $total_penjualan - $total_pengeluaran;
             $temp += $pendapatan;

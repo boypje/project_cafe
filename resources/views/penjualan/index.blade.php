@@ -19,6 +19,7 @@
                         <th width="5%">No</th>
                         <th>Tanggal</th>
                         <th>Kode Pemesanan</th>
+                        <th>Status</th>
                         <th width="15%">Metode Pembayaran</th>
                         <th>Total Harga</th>
                         <th>Potongan</th>
@@ -33,6 +34,7 @@
 </div>
 
 @includeIf('penjualan.detail')
+@includeIf('penjualan.form')
 @endsection
 
 @push('scripts')
@@ -52,6 +54,7 @@
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'tanggal'},
                 {data: 'id_penjualan'},
+                {data: 'status'},
                 {data: 'metode'},
                 {data: 'total_harga'},
                 {data: 'diskon'},
@@ -73,13 +76,55 @@
                 {data: 'subtotal'},
             ]
         })
-    });
+
+        $('#modal-form').validator().on('submit', function (e) {
+            if (! e.preventDefault()) {
+                $.post($('#modal-form form').attr('action'), $('#modal-form form').serialize())
+                    .done((response) => {
+                        $('#modal-form').modal('hide');
+                        table.ajax.reload();
+                        
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Data Berhasil Disimpan',
+                            icon: 'success'
+                        });
+                    })
+                    .fail((errors) => {
+                        Swal.fire({
+                            title: 'Failed',
+                            text: 'Tidak Dapat Menyimpan Data',
+                            icon: 'warning'
+                        });
+                        return;
+                    });
+            }
+        });
+    });    
 
     function showDetail(url) {
         $('#modal-detail').modal('show');
 
         table1.ajax.url(url);
         table1.ajax.reload();
+    }
+
+    function editForm(url) {
+        $('#modal-form').modal('show');
+        $('#modal-form .modal-title').text('Edit Data Penjualan');
+        $('#modal-form form')[0].reset();
+        $('#modal-form form').attr('action', url);
+        $('#modal-form [name=_method]').val('put');
+        $('#modal-form [name=status]').focus();
+
+        $.get(url)
+            .done((response) => {
+                $('#modal-form [name=status]').val(response.status);
+            })
+            .fail((errors) => {
+                alert('Tidak dapat menampilkan data');
+                return;
+            });
     }
 
     function deleteData(url) {

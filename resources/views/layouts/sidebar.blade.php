@@ -60,15 +60,19 @@
                 <li class="header">REPORT</li>
                 <li>
                     <a href="{{ route('laporan.index') }}">
-                        <i class="fa fa-file-pdf-o"></i> <span>Laporan Keuangan</span>
+                        <i class="fa fa-file-pdf-o"></i> <span>Keuangan</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('laporan_stok.index') }}">
-                        <i class="fa fa-book"></i> <span>Laporan Penjualan Kasir</span>
+                        <i class="fa fa-book"></i> <span>Penjualan Kasir</span>
                     </a>
                 </li>
-
+                <li>
+                    <a href="{{ route('performa.index') }}">
+                        <i class="fa fa-file-text"></i> <span>Performa Kasir</span>
+                    </a>
+                </li>
                 <li class="header">SYSTEM</li>
                 <li>
                     <a href="{{ route('user.index') }}">

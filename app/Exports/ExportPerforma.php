@@ -5,30 +5,28 @@ namespace App\Exports;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Illuminate\Support\Facades\DB;
-use App\Models\Produk;
+use App\Models\Penjualan;
+use App\Models\User;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ExportReport implements FromView, ShouldAutoSize, WithStyles
+class ExportPerforma implements FromView, ShouldAutoSize, WithStyles
 {
-    private $startDate;
-    private $endDate;
-    private $productIds;
-
-    public function __construct($startDate, $endDate, $productIds)
+    private $awal;
+    private $akhir;
+    
+    public function __construct($awal, $akhir)
     {
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
-        $this->productIds = $productIds;
+        $this->awal = $awal;
+        $this->akhir = $akhir;
     }
 
     public function view(): View
     {
-        $data = $this->getData($this->startDate, $this->endDate, $this->productIds);
-        $products = Produk::whereIn('id_produk', $this->productIds)->get();
-        return view('exports.laporanstok', ['data' => $data, 'products' => $products]);
+        $data = $this->getData($this->awal, $this->akhir);
+        return view('exports.laporanperforma', ['data' => $data]);
     }
 
     public function styles(Worksheet $sheet)
@@ -62,37 +60,39 @@ class ExportReport implements FromView, ShouldAutoSize, WithStyles
         $sheet->getStyle($sheet->calculateWorksheetDimension())->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
     }
 
-    public function getData($startDate, $endDate, $productIds)
+    public function getData($awal, $akhir)
     {
         $selectColumns = [
             DB::raw('DATE(penjualan.created_at) AS Tanggal'),
             'users.name AS kasir',
+            DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL THEN penjualan.id_penjualan ELSE 0 END) AS total_transaksi'),
+            DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL AND penjualan.status = "SUKSES" THEN penjualan.id_penjualan END) AS transaksi_sukses'),
+            DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL AND penjualan.status = "SALAH" THEN penjualan.id_penjualan END) AS transaksi_salah'),
+            DB::raw('SUM(CASE WHEN penjualan.metode IS NOT NULL THEN penjualan.pengunjung ELSE 0 END) AS total_pengunjung'),
         ];
-
-        foreach ($productIds as $productId) {
-            $selectColumns[] = DB::raw("SUM(CASE WHEN penjualandetail.id_produk = $productId THEN penjualandetail.jumlah ELSE 0 END) as total_produk_" . $productId . "_terjual");
-        }
-
-        $selectColumns[] = DB::raw('SUM(penjualandetail.jumlah) AS total_semua_produk_terjual');
         $trx = DB::table('penjualan')
             ->select($selectColumns)
             ->join('users', 'users.id', '=', 'penjualan.id_user')
-            ->join('penjualandetail', 'penjualandetail.id_penjualan', '=', 'penjualan.id_penjualan')
-            ->whereIn('penjualandetail.id_produk', $productIds)
-            ->whereDate("penjualan.created_at", ">=", $startDate)
-            ->whereDate("penjualan.created_at", "<=", $endDate)
+            ->whereDate("penjualan.created_at", ">=", $awal)
+            ->whereDate("penjualan.created_at", "<=", $akhir)
             ->where('penjualan.total_harga', '!=', 0)
-            ->groupBy(DB::raw('DATE(penjualan.created_at)'),'kasir')
+            ->groupBy(DB::raw('DATE(penjualan.created_at)'), 'kasir')
             ->get();
-        $totalColumns = array_map(function ($productId) {
-            return "total_produk_" . $productId . "_terjual";
-        }, $productIds);
 
-        $totals = [];
-        foreach ($totalColumns as $column) {
-            $totals[$column] = $trx->sum($column);
-        }
-        $totals['total_semua_produk_terjual'] = $trx->sum("total_semua_produk_terjual");
+        $trx->transform(function ($item, $key) {
+                $item->Nomor = $key + 1; // Add row numbers
+                return $item;
+        });
+
+        $totals = [
+            'Nomor' => '',
+            'Tanggal' => '',
+            'kasir' => 'Total',
+            'total_transaksi' => $trx->sum('total_transaksi'),
+            'transaksi_sukses' => $trx->sum('transaksi_sukses'),
+            'transaksi_salah' => $trx->sum('transaksi_salah'),
+            'total_pengunjung' => $trx->sum('total_pengunjung'),
+        ];
 
         $trx->map(function ($nilai) {
             $nilai->Tanggal = tanggal_indonesia($nilai->Tanggal, false);
@@ -102,7 +102,7 @@ class ExportReport implements FromView, ShouldAutoSize, WithStyles
         $totals['Tanggal'] = '';
         $totals['kasir'] = 'Total';
 
-        $trx[] = $totals;
+        $trx[] = (object) $totals;
         return $trx;
     }
 }

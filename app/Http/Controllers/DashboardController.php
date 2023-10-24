@@ -18,6 +18,7 @@ class DashboardController extends Controller
         $produk = Produk::count();
         $penjualan = Penjualan::where('metode', '<>', '')
         ->where('total_harga', '>', 0)
+        ->where('status', '=', "SUKSES")
         ->count('id_penjualan');
         $user = User::count();
         

@@ -2,8 +2,6 @@
     <thead>
         <th>Tanggal</th>
         <th>Kasir</th>
-        <th>Total Transaksi</th>
-        <th>Total Pengunjung</th>
         @foreach ($products as $product)
             <th>{{ $product->nama_produk }}</th>
         @endforeach
@@ -28,8 +26,6 @@
             columns: [
                 {data: 'Tanggal'},
                 {data: 'kasir'},
-                {data: 'total_transaksi'},
-                {data: 'total_pengunjung'},
                 @foreach($products as $product)
                     {
                         data: "{{ 'total_produk_' . $product->id_produk . '_terjual'}}",

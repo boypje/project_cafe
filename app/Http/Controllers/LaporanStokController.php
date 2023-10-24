@@ -36,8 +36,6 @@ class LaporanStokController extends Controller
         $selectColumns = [
             DB::raw('DATE(penjualan.created_at) AS Tanggal'),
             'users.name AS kasir',
-            DB::raw('COUNT(DISTINCT CASE WHEN penjualan.metode IS NOT NULL THEN penjualan.id_penjualan ELSE 0 END) AS total_transaksi'),
-            DB::raw('SUM(DISTINCT CASE WHEN penjualan.metode IS NOT NULL THEN penjualan.pengunjung ELSE 0 END) AS total_pengunjung'),
         ];
 
         foreach ($productIds as $productId) {
@@ -63,8 +61,7 @@ class LaporanStokController extends Controller
         foreach ($totalColumns as $column) {
             $totals[$column] = $trx->sum($column);
         }
-        $totals['total_transaksi'] = $trx->sum("total_transaksi");
-        $totals['total_pengunjung'] = $trx->sum("total_pengunjung");
+        
         $totals['total_semua_produk_terjual'] = $trx->sum("total_semua_produk_terjual");
 
         $trx->map(function ($nilai) {
