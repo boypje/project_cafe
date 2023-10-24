@@ -84,8 +84,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'level:1'], function () {
         Route::get('/laporan-performa', [PerformaController::class, 'index'])->name('performa.index');
-        Route::get('/laporan-performa/data/{awal}/{akhir}', [PerformaController::class, 'data'])->name('performa.data');
-        Route::get('/laporan-performa/pdf/{awal}/{akhir}', [PerformaController::class, 'exportPDF'])->name('performa.export_pdf');
+        Route::get('/laporan-performa/data/{awal}/{akhir}/{user_id?}', [PerformaController::class, 'data'])->name('performa.data');
+        Route::get('/laporan-performa/pdf/{awal}/{akhir}/{user_id?}', [PerformaController::class, 'exportPDF'])->name('performa.export_pdf');
         Route::get('/laporan-performa/export-excel', [PerformaController::class, 'exportExcel'])->name('performa.export_excel');
     });
 

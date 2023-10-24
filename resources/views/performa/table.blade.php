@@ -25,7 +25,7 @@
             serverSide: true,
             autoWidth: false,
             ajax: {
-                url: '{{ route('performa.data', [$tanggalAwal, $tanggalAkhir]) }}',
+                url: '{{ route('performa.data', [$tanggalAwal, $tanggalAkhir, $user_id ?? 'null']) }}',
             },
             columns: [
                 {data: 'Nomor'},

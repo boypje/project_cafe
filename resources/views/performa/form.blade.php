@@ -1,11 +1,11 @@
 <div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form">
     <div class="modal-dialog modal-lg" role="document">
-        <form action="{{ route('laporan.index') }}" method="get" data-toggle="validator" class="form-horizontal">
+        <form action="{{ route('performa.index') }}" method="get" data-toggle="validator" class="form-horizontal">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Periode Laporan</h4>
+                    <h4 class="modal-title">Filter Laporan</h4>
                 </div>
                 <div class="modal-body">
                 <div class="form-group row">
@@ -26,6 +26,17 @@
                             style="border-radius: 0 !important;"
                             oninput="this.value = this.value.replace(/[^0-9-]/g, '');">
                         <span class="help-block with-errors"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                <label for="user_id" class="col-lg-2 col-lg-offset-1 control-label">Pilih Kasir</label>
+                <div class="col-lg-6">
+                    <select name="user_id" id="user_id" class="form-control">
+                        <option value="">Semua Kasir</option>
+                        @foreach ($user as $key => $item)
+                        <option value="{{ $key }}">{{ $item }}</option>
+                        @endforeach
+                    </select>
                     </div>
                 </div>
                 </div>

@@ -19,7 +19,6 @@
     <table class="table table-striped">
         <thead>
             <tr>
-            <th width="5%">No</th>
             <th>Tanggal</th> 
             <th>Kasir</th>                     
             <th>Total Transaksi</th>            
