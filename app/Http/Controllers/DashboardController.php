@@ -14,7 +14,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $pengunjung = Penjualan::where('metode', '<>', '')->sum('pengunjung');
+        $pengunjung = Penjualan::where('metode', '<>', '')
+        ->where('status', 'SUKSES')
+        ->sum('pengunjung');
         $produk = Produk::count();
         $penjualan = Penjualan::where('metode', '<>', '')
         ->where('total_harga', '>', 0)
@@ -32,7 +34,9 @@ class DashboardController extends Controller
         while (strtotime($tanggal_awal) <= strtotime($tanggal_akhir)) {
             $data_tanggal[] = (int) substr($tanggal_awal, 8, 2);
 
-            $total_penjualan = Penjualan::where('created_at', 'LIKE', "%$tanggal_awal%")->sum('bayar');
+            $total_penjualan = Penjualan::where('created_at', 'LIKE', "%$tanggal_awal%")
+            ->where('status', 'SUKSES')
+            ->sum('bayar');
             $total_pengeluaran = Pengeluaran::where('created_at', 'LIKE', "%$tanggal_awal%")->sum('nominal');
 
             $pendapatan = $total_penjualan - 0;
