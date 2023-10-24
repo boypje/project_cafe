@@ -163,7 +163,7 @@ class PenjualanController extends Controller
         $penjualan->status = $request->status;
         
         $detail    = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
-        if($penjualan->status = "SALAH"){
+        if($penjualan->status == "SALAH"){
             foreach ($detail as $item) {
                 $produk = Produk::find($item->id_produk);
                 if ($produk) {
