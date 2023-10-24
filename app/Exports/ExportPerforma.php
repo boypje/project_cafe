@@ -100,6 +100,18 @@ class ExportPerforma implements FromView, ShouldAutoSize, WithStyles
             return $item;
         });
 
+        $totals = [
+            'Nomor' => '',
+            'Tanggal' => '',
+            'kasir' => 'Total',
+            'total_transaksi' => $trx->sum('total_transaksi'),
+            'transaksi_sukses' => $trx->sum('transaksi_sukses'),
+            'transaksi_salah' => $trx->sum('transaksi_salah'),
+            'total_pengunjung' => $trx->sum('total_pengunjung'),
+        ];
+
+        $trx[] = $totals;
+
         return $trx;
     }
 }

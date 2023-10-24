@@ -11,17 +11,28 @@
         </tr>
     </thead>
     <tbody>
-    @foreach ($data as $trx)
-    <tr>
-        <td>{{ $trx->Nomor }}</td>
-        <td>{{ $trx->Tanggal }}</td>
-        <td>{{ $trx->kasir }}</td>
-        <td>{{ $trx->total_transaksi }}</td>
-        <td>{{ $trx->transaksi_sukses }}</td>
-        <td>{{ $trx->transaksi_salah }}</td>
-        <td>{{ $trx->total_pengunjung }}</td>
-    </tr>
+        @foreach ($data as $trx)
+        <tr>
+            @if (is_object($trx))
+                <td>{{ $trx->Nomor ?? ''}}</td>
+                <td>{{ $trx->Tanggal ?? '' }}</td>
+                <td>{{ $trx->kasir ?? '-'}}</td>
+                <td>{{ $trx->total_transaksi ?? '-' }}</td>
+                <td>{{ $trx->transaksi_sukses ?? '-'}}</td>
+                <td>{{ $trx->transaksi_salah ?? '-'}}</td>
+                <td>{{ $trx->total_pengunjung ?? '-'}}</td>
+            @else
+                <td>{{ $trx['Nomor'] }}</td>
+                <td>{{ $trx['Tanggal'] ?? '' }}</td>
+                <td>{{ $trx['kasir'] ?? '-'}}</td>
+                <td>{{ $trx['total_transaksi'] ?? '-' }}</td>
+                <td>{{ $trx['transaksi_sukses'] ?? '-'}}</td>
+                <td>{{ $trx['transaksi_salah'] ?? '-'}}</td>
+                <td>{{ $trx['total_pengunjung'] ?? '-'}}</td>
+            @endif
 
-    @endforeach
+        </tr>
+
+        @endforeach
     </tbody>
 </table>
