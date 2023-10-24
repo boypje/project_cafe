@@ -99,7 +99,7 @@ class PerformaController extends Controller
     {
         $awal = $request->input('tanggal_awal');
         $akhir = $request->input('tanggal_akhir');
-        $user_id = $request->input('user_id');
+        $user_id = $request->input('user_id', 'all');
 
         return Excel::download(new ExportPerforma($awal, $akhir, $user_id), "Laporan_Performa_Kasir.xlsx");
     }
