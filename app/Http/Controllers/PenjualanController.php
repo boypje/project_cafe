@@ -14,6 +14,7 @@ class PenjualanController extends Controller
     public function index(Request $request)
     {
         return view('penjualan.index');
+
     }
 
     public function data()
@@ -56,11 +57,10 @@ class PenjualanController extends Controller
             ->addColumn('aksi', function ($penjualan) {
                 return '
                 <button onclick="showDetail(`' . route('penjualan.show', $penjualan->id_penjualan) . '`)" class="btn btn-xs btn-success btn-flat"><i class="fa fa-eye"></i></button>
-                <button onclick="editForm(`'. route('penjualan.update', $penjualan->id_penjualan) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
+                <button onclick="editForm(`' . route('penjualan.update', $penjualan->id_penjualan) . '`, \'' . tambah_nol_didepan($penjualan->id_penjualan, 10) . '\', \'' . $penjualan->status . '\')" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
                 <button onclick="deleteData(`' . route('penjualan.destroy', $penjualan->id_penjualan) . '`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-            
-            ';
-            })
+                ';
+            })                        
             ->rawColumns(['status','aksi'])
             ->make(true);
     }

@@ -109,23 +109,26 @@
         table1.ajax.reload();
     }
 
-    function editForm(url) {
+    function editForm(url, kode_pemesanan, status) {
         $('#modal-form').modal('show');
         $('#modal-form .modal-title').text('Edit Data Penjualan');
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
         $('#modal-form [name=_method]').val('put');
+        $('#modal-form [name=kode_pemesanan]').val(kode_pemesanan);
+        $('#modal-form [name=status]').val(status);
         $('#modal-form [name=status]').focus();
 
         $.get(url)
             .done((response) => {
-                $('#modal-form [name=status]').val(response.status);
+
             })
             .fail((errors) => {
                 alert('Tidak dapat menampilkan data');
                 return;
             });
     }
+
 
     function deleteData(url) {
         Swal.fire({

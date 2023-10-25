@@ -13,9 +13,15 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group row">
+                        <label for="kode_pemesanan" class="col-lg-2 col-lg-offset-1 control-label">Kode </label>
+                        <div class="col-lg-6">
+                            <input type="text" id="kode_pemesanan" name="kode_pemesanan" class="form-control" value="" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label for="status" class="col-lg-2 col-lg-offset-1 control-label">Status</label>
                         <div class="col-lg-6">
-                        <select name="status" id="status" class="form-control" required">
+                        <select name="status" id="status" class="form-control" required autofocus">
                             <option value="">Pilih Status</option>
                             <option value="SUKSES">SUKSES</option>
                             <option value="SALAH">SALAH</option>
