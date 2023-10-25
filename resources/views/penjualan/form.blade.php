@@ -22,7 +22,7 @@
                         <label for="status" class="col-lg-2 col-lg-offset-1 control-label">Status</label>
                         <div class="col-lg-6">
                         <select name="status" id="status" class="form-control" required autofocus">
-                            <option value="">Pilih Status</option>
+                            <option value="" disabled selected>Pilih Status</option>
                             <option value="SUKSES">SUKSES</option>
                             <option value="SALAH">SALAH</option>
                         </select>
