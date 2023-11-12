@@ -37,7 +37,7 @@
                     <div class="form-group row">
                         <label for="foto" class="col-lg-2 control-label">Profil</label>
                         <div class="col-lg-4">
-                            <input type="file" name="foto" class="form-control" id="foto" onchange="cropAndPreview('.tampil-foto', this)">
+                            <input type="file" name="foto" class="form-control" id="foto" onchange="preview('.tampil-foto', this)" accept="image/*">
                             <span class="help-block with-errors"></span>
                             <br>
                             <div class="tampil-foto">
@@ -82,8 +82,22 @@
 
 @push('scripts')
 <script>
-        function cropAndPreview(target, input) {
-        const file = input.files[0];
+        function preview(selector, file) {
+        if (!file || !file.type.startsWith('image/')) {
+            Swal.fire({
+                icon: 'error',
+                title: 'File harus Gambar!',
+                text: 'Mohon pilih file gambar.',
+            });
+            document.getElementById('foto').value = '';
+            return;
+        }
+
+        // Panggil fungsi cropAndPreview dengan elemen dan file yang sesuai
+        cropAndPreview('.tampil-foto', file);
+    }
+
+    function cropAndPreview(target, file) {
         const canvas = document.getElementById('crop-canvas');
         const ctx = canvas.getContext('2d');
 

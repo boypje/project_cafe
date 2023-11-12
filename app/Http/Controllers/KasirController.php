@@ -39,14 +39,17 @@ class KasirController extends Controller
             $total_transaksi = $trx->sum("total_transaksi");
             $tunai = Penjualan::where('metode', '=', 'Tunai')
             ->where('created_at', 'LIKE', "%$now%")
+            ->where('status', '=', 'SUKSES')
             ->where('id_user', '=', $user)
             ->sum('bayar');
             $debit = Penjualan::where('metode', '=', 'Debit')
             ->where('created_at', 'LIKE', "%$now%")
+            ->where('status', '=', 'SUKSES')
             ->where('id_user', '=', $user)
             ->sum('bayar');
             $jual = Penjualan::where('created_at', 'LIKE', "%$now")
               ->where('id_user', '=', $user)
+              ->where('status', '=', 'SUKSES')
               ->sum('bayar');
             $pengeluaran_tunai = Pengeluaran::where('metode', "=", "Tunai")
             ->where('created_at', 'LIKE', "%$now")

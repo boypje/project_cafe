@@ -11,7 +11,7 @@
     <style>
         * {
             font-family: "consolas", sans-serif;
-            margin-lect: 10px;
+            margin-left: 2px;
         }
         p {
             display: block;
@@ -43,7 +43,7 @@
     <?php
     $style .= '
             html, body {
-                width: 42mm;
+                width: 47mm;
             }
             .btn-print {
                 display: none;

@@ -14,7 +14,7 @@
                     <div class="form-group row">
                         <label for="nominal" class="col-lg-2 col-lg-offset-1 control-label">Nominal</label>
                         <div class="col-lg-6">
-                            <input type="text" name="nominal" id="nominal" class="form-control" required autofocus>
+                            <input type="number" name="nominal" id="nominal" class="form-control" required autofocus>
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
@@ -24,8 +24,8 @@
                         <label for="metode" class="col-lg-2 col-lg-offset-1 control-label">Metode</label>
                         <div class="col-lg-6">
                         <select name="metode" id="" class="form-control" required autofocus">
-                                            <option value="Tunai">Tunai</option>
-                                            <option value="Debit">Debit</option>
+                            <option value="Tunai">Tunai</option>
+                            <option value="Debit">Debit</option>
                         </select>
                         </div>
                 </div>

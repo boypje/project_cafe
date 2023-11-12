@@ -39,6 +39,29 @@
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('.form-horizontal');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const tanggalAwal = document.getElementById('tanggal_awal').value;
+            const tanggalAkhir = document.getElementById('tanggal_akhir').value;
+
+            if (tanggalAwal > tanggalAkhir) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Pilihan tanggal Anda tidak valid!',
+                    text: 'Tanggal Awal tidak boleh lebih besar dari Tanggal Akhir.',
+                });
+            } else {
+                // Lanjutkan dengan pengiriman formulir jika valid
+                form.submit();
+            }
+        });
+    });
+</script>
 <style>
     .modal-content {
         border-radius: 8px;

@@ -55,11 +55,6 @@ class PengeluaranController extends Controller
             ->make(true);
     }
 
-    public function create()
-    {
-        // Kode untuk menampilkan formulir pembuatan pengeluaran
-    }
-
     public function store(Request $request)
     {
         $pengeluaran = new Pengeluaran();

@@ -46,7 +46,7 @@ class ExportPerforma implements FromView, ShouldAutoSize, WithStyles
             ->getStartColor()
             ->setARGB('FFFF00');
 
-        // Apply all borders to the entire sheet
+        
         $sheet->getStyle($sheet->calculateWorksheetDimension())->applyFromArray([
             'borders' => [
                 'allBorders' => [
@@ -55,7 +55,6 @@ class ExportPerforma implements FromView, ShouldAutoSize, WithStyles
             ],
         ]);
 
-        // Set column widths to 150 pixels for all columns
         for ($col = 'A'; $col <= $sheet->getHighestColumn(); $col++) {
             $sheet->getColumnDimension($col)->setWidth(150);
         }

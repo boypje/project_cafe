@@ -25,6 +25,7 @@ class ProdukController extends Controller
 
     public function data()
     {
+        $user = auth()->user();
         $produk = Produk::leftJoin('category', 'category.id_category', 'produk.id_category')
             ->select('produk.*', 'nama_kategori')
             ->orderBy('id_category', 'asc')->get();
@@ -35,13 +36,14 @@ class ProdukController extends Controller
             ->addColumn('harga_jual', function ($produk){
                 return format_money($produk->harga_jual);
             })
-            ->addColumn('aksi', function ($produk) {
-                return '
-                
-                    <button onclick="editForm(`'. route('produk.update', $produk->id_produk) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
-                    <button onclick="deleteData(`'. route('produk.destroy', $produk->id_produk) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-                
-                ';
+            ->addColumn('aksi', function ($produk) use ($user) {
+                $buttons = '';
+                if ($user->level === 1) {
+                    $buttons .= '<button onclick="editForm(`'. route('produk.update', $produk->id_produk) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>';
+                    $buttons .= '<button onclick="deleteData(`'. route('produk.destroy', $produk->id_produk) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>';
+                }
+                $buttons .= '<button onclick="editForm(`'. route('produk.update', $produk->id_produk) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>';
+                return $buttons;
             })
             ->rawColumns(['aksi'])
             ->make(true);
