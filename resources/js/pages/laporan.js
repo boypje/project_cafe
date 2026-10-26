@@ -1,4 +1,4 @@
-import { api, rupiah, angka, persen, tanggal, bulan, ymd, unduhCsv, ringkas, HARI } from '../lib/util';
+import { api, rupiah, angka, persen, tanggal, bulan, ymd, unduhCsv, ringkas, HARI, potong, jumlahHalaman } from '../lib/util';
 import { grafik, WARNA, sumbuRupiah, tooltipRupiah, tooltipDonat } from '../lib/chart';
 
 const PRESET = {
@@ -36,6 +36,18 @@ export default (url) => {
         d: null,
         loading: true,
         urutProduk: 'omzet',
+        hal: { harian: 1, produk: 1, stok: 1 },
+        perHal: 15,
+
+        halAktif(list, kunci) {
+            return Math.min(this.hal[kunci], jumlahHalaman(list, this.perHal));
+        },
+        bagian(list, kunci) {
+            return potong(list, this.halAktif(list, kunci), this.perHal);
+        },
+        pindah(n, list, kunci) {
+            this.hal[kunci] = Math.min(Math.max(n, 1), jumlahHalaman(list, this.perHal));
+        },
         rupiah,
         angka,
         tanggal,
@@ -52,6 +64,7 @@ export default (url) => {
             }
             this.muat();
             this.$watch('tab', () => this.$nextTick(() => this.gambar()));
+            this.$watch('urutProduk', () => (this.hal.produk = 1));
         },
 
         destroy() {
@@ -74,6 +87,7 @@ export default (url) => {
 
         async muat() {
             this.loading = true;
+            this.hal = { harian: 1, produk: 1, stok: 1 };
             history.replaceState(history.state, '', `?awal=${this.awal}&akhir=${this.akhir}`);
             try {
                 this.d = await api(url, { params: { awal: this.awal, akhir: this.akhir } });
@@ -143,7 +157,7 @@ export default (url) => {
         heat(v) {
             if (!v) return 'background:#F7F4F1';
             const a = 0.15 + (v / this.maxHeat) * 0.85;
-            return `background:rgba(154,87,35,${a.toFixed(2)});color:${a > 0.55 ? '#fff' : '#2A1F19'}`;
+            return `background:rgba(147,50,42,${a.toFixed(2)});color:${a > 0.55 ? '#fff' : '#2A1F19'}`;
         },
 
         gambar() {

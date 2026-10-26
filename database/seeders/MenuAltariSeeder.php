@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\PenjualanDetail;
 use App\Models\Produk;
 use App\Models\ProdukKomponen;
 use Illuminate\Database\Seeder;
@@ -15,8 +16,9 @@ use Illuminate\Support\Facades\DB;
  * - Produk lama dicocokkan lewat nama (nama baru atau nama lama), lalu diganti
  *   nama & harganya. Stok dan riwayat penjualannya tetap.
  * - Produk baru dibuat dengan stok 0.
- * - Produk yang tidak ada di menu TIDAK dihapus (laporan lama tetap utuh),
- *   hanya disembunyikan dari kasir. Kategori Packaging (mis. Box) tetap tampil.
+ * - Produk di luar menu dihapus bila belum pernah terjual; yang sudah punya
+ *   riwayat penjualan hanya disembunyikan agar laporan lama tetap utuh.
+ *   Kategori di luar menu yang sudah kosong ikut dihapus.
  * - Aman dijalankan berulang.
  */
 class MenuAltariSeeder extends Seeder
@@ -48,14 +50,13 @@ class MenuAltariSeeder extends Seeder
             ['Telur Ceplok / Dadar', 'Additional', 4000, ['Telor']],
             ['Tempe Goreng', 'Additional', 2000, ['Tempe']],
             ['Tahu Goreng', 'Additional', 2000, ['Tahu']],
-            // Bahan resep Nasi 3T/4T yang tidak dijual satuan
-            ['Terong', 'Additional', 1000, [], true, [], false],
 
             // Menu Sambelan
             ['Nasi Ayam Endul', 'Menu Sambelan', 17000, ['Paket Nasi+Ayam Endul'], true, ['Nasi Putih' => 1, 'Ayam Goreng' => 1]],
             ['Nasi Bebek Endul', 'Menu Sambelan', 25000, ['Paket Nasi+Bebek Endul'], true, ['Nasi Putih' => 1, 'Bebek Goreng' => 1]],
-            ['Nasi 3T', 'Menu Sambelan', 8000, ['Paket Nasi 3T'], true, ['Nasi Putih' => 1, 'Tahu Goreng' => 1, 'Tempe Goreng' => 1, 'Terong' => 1]],
-            ['Nasi 4T', 'Menu Sambelan', 12000, ['Paket Nasi 4T'], true, ['Nasi Putih' => 1, 'Tahu Goreng' => 1, 'Tempe Goreng' => 1, 'Terong' => 1, 'Telur Ceplok / Dadar' => 1]],
+            // Terong tidak dijual satuan sehingga tidak dihitung stoknya.
+            ['Nasi 3T', 'Menu Sambelan', 8000, ['Paket Nasi 3T'], true, ['Nasi Putih' => 1, 'Tahu Goreng' => 1, 'Tempe Goreng' => 1]],
+            ['Nasi 4T', 'Menu Sambelan', 12000, ['Paket Nasi 4T'], true, ['Nasi Putih' => 1, 'Tahu Goreng' => 1, 'Tempe Goreng' => 1, 'Telur Ceplok / Dadar' => 1]],
             ['Nasi Lele', 'Menu Sambelan', 14000, ['Paket Nasi+Lele'], true, ['Nasi Putih' => 1, 'Lele' => 1]],
             ['Nasi Wader', 'Menu Sambelan', 13000, [], true, ['Nasi Putih' => 1, 'Wader' => 1]],
             ['Nasi Mujaer', 'Menu Sambelan', 13000, [], true, ['Nasi Putih' => 1, 'Mujaer' => 1]],
@@ -122,24 +123,28 @@ class MenuAltariSeeder extends Seeder
                 }
             }
 
-            // Sembunyikan produk di luar menu, kecuali kategori Packaging (biaya kemasan).
-            $packaging = Category::where('nama_kategori', 'Packaging')->value('id_category');
-            Produk::whereNotIn('id_produk', $dipakai)
-                ->when($packaging, function ($q) use ($packaging) {
-                    $q->where('id_category', '<>', $packaging);
-                })
-                ->update(['tampil_kasir' => false]);
+            // Produk di luar menu: hapus bila belum pernah terjual, selain itu sembunyikan.
+            $luarMenu = Produk::whereNotIn('id_produk', $dipakai);
+            $terjual = PenjualanDetail::whereIn('id_produk', (clone $luarMenu)->select('id_produk'))->distinct()->pluck('id_produk');
+            (clone $luarMenu)->whereIn('id_produk', $terjual)->update(['tampil_kasir' => false]);
+            (clone $luarMenu)->whereNotIn('id_produk', $terjual)->get()->each->delete();
+
+            Category::whereNotIn('id_category', array_values($kategori))
+                ->whereDoesntHave('produk')
+                ->delete();
         });
     }
 
     private function kategori()
     {
         $hasil = [];
+        $urutan = 0;
         foreach (self::KATEGORI as $nama => $lama) {
             $k = Category::where('nama_kategori', $nama)->first()
                 ?? Category::whereIn('nama_kategori', $lama)->first()
                 ?? new Category();
             $k->nama_kategori = $nama;
+            $k->urutan = ++$urutan;
             $k->save();
             $hasil[$nama] = $k->id_category;
         }

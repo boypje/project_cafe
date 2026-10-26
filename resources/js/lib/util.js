@@ -41,7 +41,19 @@ export const persen = (sekarang, lalu) => {
     return ((sekarang - lalu) / Math.abs(lalu)) * 100;
 };
 
-export const debounce = (fn, ms = 250) => {
+/** Nomor halaman ringkas: [1, '…', 4, 5, 6, '…', 12] */
+export const nomorHalaman = (aktif, total) => {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const set = [1, total, aktif - 1, aktif, aktif + 1].filter((n) => n >= 1 && n <= total);
+    const urut = [...new Set(set)].sort((a, b) => a - b);
+    return urut.flatMap((n, i) => (i && n - urut[i - 1] > 1 ? ['…', n] : [n]));
+};
+
+/** Pagination di sisi browser untuk daftar yang sudah dimuat semua. */
+export const potong = (list, halaman, perHalaman = 15) => list.slice((halaman - 1) * perHalaman, halaman * perHalaman);
+export const jumlahHalaman = (list, perHalaman = 15) => Math.max(1, Math.ceil(list.length / perHalaman));
+
+export const debounce =(fn, ms = 250) => {
     let t;
     return (...a) => {
         clearTimeout(t);

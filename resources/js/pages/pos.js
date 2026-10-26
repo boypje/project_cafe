@@ -12,6 +12,7 @@ const orderKosong = () => ({
     diskonInput: '',
     metode: 'Tunai',
     diterima: '',
+    tahanId: null, // diisi bila pesanan ini dibuka dari daftar "belum bayar"
 });
 
 function baca() {
@@ -25,6 +26,7 @@ function baca() {
 /**
  * Layar kasir: seluruh pesanan disusun di browser, lalu dikirim sekali
  * saat bayar (satu request, satu DB transaction, stok resep ikut terpotong).
+ * Pesanan yang belum dibayar bisa disimpan ("tahan") ke server lalu dibuka lagi.
  */
 export default (config) => ({
     produk: [],
@@ -40,6 +42,7 @@ export default (config) => ({
     hasil: null,
     riwayatOpen: false,
     riwayat: [],
+    tertahan: [],
     keranjangMobile: false,
     cetakOtomatis: false,
     pengumuman: '',
@@ -59,6 +62,9 @@ export default (config) => ({
         this.$watch('order', () => this.simpanLokal());
         this.$watch('cetakOtomatis', () => this.simpanLokal());
         this.muat();
+        this.muatTahan();
+        // Daftar "belum bayar" dipakai bersama antarkasir: segarkan berkala.
+        this._tahan = setInterval(() => this.muatTahan(), 30000);
         this._key = (e) => this.tombol(e);
         window.addEventListener('keydown', this._key);
     },
@@ -66,6 +72,7 @@ export default (config) => ({
     destroy() {
         window.removeEventListener('keydown', this._key);
         clearInterval(this._jam);
+        clearInterval(this._tahan);
     },
 
     simpanLokal() {
@@ -178,6 +185,93 @@ export default (config) => ({
         this.order = { ...orderKosong(), metode };
     },
 
+    // ---- Pesanan belum dibayar (open bill) ----
+    async muatTahan() {
+        try {
+            this.tertahan = await api(config.urls.tahan);
+        } catch (e) {
+            /* daftar tertahan gagal dimuat: kasir tetap bisa berjualan */
+        }
+    },
+
+    label(t) {
+        return [t.meja && `Meja ${t.meja}`, t.pelanggan].filter(Boolean).join(' · ') || `Pesanan ${t.jam}`;
+    },
+
+    get labelAktif() {
+        const t = this.tertahan.find((x) => x.id === this.order.tahanId);
+        return t ? this.label(t) : null;
+    },
+
+    /** Simpan pesanan saat ini sebagai belum dibayar, lalu kosongkan layar untuk pelanggan berikutnya. */
+    async tahan({ diam = false } = {}) {
+        if (!this.cart.length) {
+            if (!diam) this.$store.toast.push('Pesanan masih kosong.', 'warning');
+            return false;
+        }
+        try {
+            await api(config.urls.tahanSimpan, {
+                method: 'POST',
+                body: {
+                    id: this.order.tahanId,
+                    items: this.cart.map((c) => ({ id: c.id, jumlah: c.jumlah })),
+                    pengunjung: Number(this.order.pengunjung) || 1,
+                    nama_pelanggan: this.order.pelanggan || null,
+                    meja: this.order.meja || null,
+                    catatan: this.order.catatan || null,
+                },
+            });
+            const nama = [this.order.meja && `Meja ${this.order.meja}`, this.order.pelanggan].filter(Boolean).join(' · ');
+            this.$store.toast.push(`${nama || 'Pesanan'} disimpan, belum dibayar.`);
+            this.reset();
+            this.keranjangMobile = false;
+            await this.muatTahan();
+            return true;
+        } catch (e) {
+            this.$store.toast.push(e.message, 'error');
+            return false;
+        }
+    },
+
+    /** Buka kembali pesanan belum dibayar. Pesanan yang sedang diinput disimpan dulu otomatis. */
+    async lanjutkan(t) {
+        if (this.order.tahanId === t.id) return;
+        if (this.cart.length && !(await this.tahan({ diam: true }))) return;
+        t = this.tertahan.find((x) => x.id === t.id) || t;
+        this.cart = t.items
+            .map((i) => {
+                const p = this.produk.find((x) => x.id === i.id);
+                return p ? { id: p.id, nama: p.nama, harga: p.harga, jumlah: i.jumlah, stok: p.stok, paket: p.paket } : null;
+            })
+            .filter(Boolean);
+        this.order = {
+            ...orderKosong(),
+            metode: this.order.metode,
+            meja: t.meja || '',
+            pelanggan: t.pelanggan || '',
+            pengunjung: t.pengunjung || 1,
+            catatan: t.catatan || '',
+            tahanId: t.id,
+        };
+        this.pengumuman = `${this.label(t)} dibuka kembali`;
+    },
+
+    async hapusTahan(t) {
+        const ok = await this.$store.confirm.ask({
+            judul: `Hapus ${this.label(t)}?`,
+            pesan: 'Pesanan belum dibayar ini akan dihapus dan tidak tercatat sebagai penjualan.',
+            tombol: 'Hapus pesanan',
+        });
+        if (!ok) return;
+        try {
+            await api(`${config.urls.tahan}/${t.id}`, { method: 'DELETE' });
+            if (this.order.tahanId === t.id) this.reset();
+            await this.muatTahan();
+        } catch (e) {
+            this.$store.toast.push(e.message, 'error');
+        }
+    },
+
     get jumlahItem() {
         return this.cart.reduce((s, c) => s + c.jumlah, 0);
     },
@@ -243,6 +337,7 @@ export default (config) => ({
                     nama_pelanggan: this.order.pelanggan || null,
                     meja: this.order.meja || null,
                     catatan: this.order.catatan || null,
+                    tahan_id: this.order.tahanId,
                 },
             });
             this.hasil = { ...res, metode: this.order.metode, item: this.jumlahItem };
@@ -251,6 +346,7 @@ export default (config) => ({
             if (res.peringatan) this.$store.toast.push(res.peringatan, 'warning', 6000);
             if (this.cetakOtomatis) cetak(res.nota_url);
             this.muat();
+            this.muatTahan();
             this.$nextTick(() => this.$refs.tombolBaru?.focus());
         } catch (e) {
             this.$store.toast.push(e.message, 'error', 5000);
@@ -298,6 +394,9 @@ export default (config) => ({
         if (e.key === 'F2' || (e.key === '/' && !ketik)) {
             e.preventDefault();
             this.$refs.cari?.focus();
+        } else if (e.key === 'F8' && !this.bayarOpen) {
+            e.preventDefault();
+            this.tahan();
         } else if (e.key === 'F9' || (e.key === 'Enter' && (e.ctrlKey || e.metaKey))) {
             e.preventDefault();
             this.bayarOpen ? this.bayar() : this.proses();

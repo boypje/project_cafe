@@ -16,7 +16,7 @@ class KategoriController extends Controller
     public function data()
     {
         return response()->json(
-            Category::withCount('produk')->orderBy('nama_kategori')->get()->map(function ($c) {
+            Category::withCount('produk')->orderBy('urutan')->orderBy('nama_kategori')->get()->map(function ($c) {
                 return ['id' => $c->id_category, 'nama' => $c->nama_kategori, 'jumlah_produk' => $c->produk_count];
             })
         );

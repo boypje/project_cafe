@@ -166,11 +166,11 @@
 
             <div class="card">
                 <h2 class="card-title border-b border-ink-100 p-5">Rincian harian</h2>
-                <div class="scroll-thin max-h-[560px] overflow-auto">
+                <div class="overflow-x-auto">
                     <table class="tbl">
                         <thead><tr><th>Tanggal</th><th class="num">Transaksi</th><th class="num">Pengunjung</th><th class="num">Penjualan bersih</th><th class="num">HPP</th><th class="num">Laba kotor</th><th class="num">Pengeluaran</th><th class="num">Laba bersih</th></tr></thead>
                         <tbody>
-                            <template x-for="h in d?.harian || []" :key="h.tanggal">
+                            <template x-for="h in bagian(d?.harian || [], 'harian')" :key="h.tanggal">
                                 <tr :class="!h.transaksi && 'text-ink-300'">
                                     <td class="whitespace-nowrap"><span x-text="HARI[new Date(h.tanggal + 'T00:00').getDay()].slice(0, 3)"></span>, <span x-text="tanggal(h.tanggal)"></span></td>
                                     <td class="num" x-text="angka(h.transaksi)"></td>
@@ -197,6 +197,7 @@
                         </tfoot>
                     </table>
                 </div>
+                @include('partials.pager', ['page' => "halAktif(d?.harian || [], 'harian')", 'last' => 'util.jumlahHalaman(d?.harian || [], perHal)', 'count' => '(d?.harian || []).length', 'set' => "((n) => pindah(n, d?.harian || [], 'harian'))"])
             </div>
         </section>
 
@@ -232,11 +233,11 @@
                         </select>
                     </label>
                 </div>
-                <div class="scroll-thin max-h-[600px] overflow-auto">
+                <div class="overflow-x-auto">
                     <table class="tbl">
                         <thead><tr><th>Menu</th><th>Kelas</th><th class="num">Qty</th><th class="num">Omzet</th><th class="num">Kontribusi</th><th class="num">HPP</th><th class="num">Laba</th><th class="num">Margin</th></tr></thead>
                         <tbody>
-                            <template x-for="p in produkUrut" :key="p.id_produk">
+                            <template x-for="p in bagian(produkUrut, 'produk')" :key="p.id_produk">
                                 <tr>
                                     <td><p class="font-semibold" x-text="p.nama"></p><p class="text-xs text-ink-400" x-text="p.kategori"></p></td>
                                     <td><span :class="{ 'badge-ok': p.kelas === 'A', 'badge-warn': p.kelas === 'B', 'badge-muted': p.kelas === 'C' }" x-text="p.kelas"></span></td>
@@ -251,6 +252,7 @@
                         </tbody>
                     </table>
                 </div>
+                @include('partials.pager', ['page' => "halAktif(produkUrut, 'produk')", 'last' => 'util.jumlahHalaman(produkUrut, perHal)', 'count' => 'produkUrut.length', 'set' => "((n) => pindah(n, produkUrut, 'produk'))"])
             </div>
 
             <div class="grid gap-6 lg:grid-cols-2">
@@ -385,11 +387,11 @@
                     <h2 class="card-title">Pemakaian & ketahanan stok</h2>
                     <p class="text-xs text-ink-500">Pemakaian dihitung dari penjualan periode ini (paket diurai ke komponennya). Perkiraan habis = stok ÷ rata-rata pemakaian harian.</p>
                 </div>
-                <div class="scroll-thin max-h-[600px] overflow-auto">
+                <div class="overflow-x-auto">
                     <table class="tbl">
                         <thead><tr><th>Bahan / produk</th><th>Status</th><th class="num">Stok</th><th class="num">Minimum</th><th class="num">Terpakai</th><th class="num">Per hari</th><th class="num">Perkiraan habis</th><th class="num">Nilai</th></tr></thead>
                         <tbody>
-                            <template x-for="s in d?.stok.items || []" :key="s.id_produk">
+                            <template x-for="s in bagian(d?.stok.items || [], 'stok')" :key="s.id_produk">
                                 <tr>
                                     <td><p class="font-semibold" x-text="s.nama"></p><p class="text-xs text-ink-400" x-text="s.kategori"></p></td>
                                     <td><span :class="{ 'badge-ok': s.status === 'aman', 'badge-warn': s.status === 'menipis', 'badge-bad': s.status === 'habis' }" x-text="s.status"></span></td>
@@ -404,6 +406,7 @@
                         </tbody>
                     </table>
                 </div>
+                @include('partials.pager', ['page' => "halAktif(d?.stok.items || [], 'stok')", 'last' => 'util.jumlahHalaman(d?.stok.items || [], perHal)', 'count' => '(d?.stok.items || []).length', 'set' => "((n) => pindah(n, d?.stok.items || [], 'stok'))"])
             </div>
         </section>
     </div>

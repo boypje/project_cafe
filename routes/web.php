@@ -32,6 +32,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/kasir/menu', [KasirController::class, 'menu'])->name('kasir.menu');
         Route::post('/kasir/checkout', [KasirController::class, 'checkout'])->name('kasir.checkout');
         Route::get('/kasir/riwayat', [KasirController::class, 'riwayat'])->name('kasir.riwayat');
+        Route::get('/kasir/tahan', [KasirController::class, 'tahanIndex'])->name('kasir.tahan');
+        Route::post('/kasir/tahan', [KasirController::class, 'tahanSimpan'])->name('kasir.tahan.simpan');
+        Route::delete('/kasir/tahan/{id}', [KasirController::class, 'tahanHapus'])->name('kasir.tahan.hapus');
         Route::get('/kasir/nota/{id}', [KasirController::class, 'nota'])->name('kasir.nota');
         Route::get('/kasir/tutup', [KasirController::class, 'tutup'])->name('kasir.tutup');
         Route::get('/kasir/tutup/data', [KasirController::class, 'tutupData'])->name('kasir.tutup.data');

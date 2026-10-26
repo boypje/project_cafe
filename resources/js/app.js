@@ -4,12 +4,11 @@ import * as Turbo from '@hotwired/turbo';
 import Alpine from 'alpinejs';
 import focus from '@alpinejs/focus';
 
-import '@fontsource/plus-jakarta-sans/400.css';
-import '@fontsource/plus-jakarta-sans/500.css';
-import '@fontsource/plus-jakarta-sans/600.css';
-import '@fontsource/plus-jakarta-sans/700.css';
-import '@fontsource/playfair-display/600.css';
-import '@fontsource/playfair-display/700.css';
+// DM Sans: pengganti terbuka yang paling mirip Maison Neue (font Gojek, berlisensi).
+import '@fontsource/dm-sans/400.css';
+import '@fontsource/dm-sans/500.css';
+import '@fontsource/dm-sans/600.css';
+import '@fontsource/dm-sans/700.css';
 
 import registerStores from './lib/stores';
 import * as util from './lib/util';

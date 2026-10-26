@@ -4,12 +4,12 @@
 @section('body-class', 'overflow-hidden')
 
 @php
-    $ikonMetode = ['Tunai' => 'cash', 'Debit' => 'card', 'QRIS' => 'qr', 'Transfer' => 'bank'];
+    $ikonMetode = ['Tunai' => 'cash', 'Transfer' => 'bank'];
 @endphp
 
 @section('body')
 <div x-data="pos({
-        urls: { menu: '{{ route('kasir.menu') }}', checkout: '{{ route('kasir.checkout') }}', riwayat: '{{ route('kasir.riwayat') }}' },
+        urls: { menu: '{{ route('kasir.menu') }}', checkout: '{{ route('kasir.checkout') }}', riwayat: '{{ route('kasir.riwayat') }}', tahan: '{{ route('kasir.tahan') }}', tahanSimpan: '{{ route('kasir.tahan.simpan') }}' },
         pajak: {{ (float) $setting->pajak_persen }},
         blokir: {{ $setting->blokir_stok_habis ? 'true' : 'false' }},
      })" class="flex h-full">
@@ -81,7 +81,7 @@
             {{-- skeleton --}}
             <div x-show="loading" class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 @for ($i = 0; $i < 10; $i++)
-                    <div class="skeleton h-36 rounded-2xl"></div>
+                    <div class="skeleton h-24 rounded-2xl"></div>
                 @endfor
             </div>
 
@@ -97,32 +97,21 @@
                         <button type="button" @click="tambah(p)"
                                 :disabled="blokir && sisa(p) !== null && sisa(p) <= 0"
                                 :aria-label="`Tambah ${p.nama}, ${rupiah(p.harga)}`"
-                                class="group relative flex h-full w-full flex-col rounded-2xl border bg-white p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                                class="group relative flex h-full min-h-[96px] w-full flex-col rounded-2xl border bg-white p-4 text-left shadow-soft transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                                 :class="diKeranjang(p.id) ? 'border-brand-400 ring-1 ring-brand-400' : 'border-ink-100'">
                             <span x-show="diKeranjang(p.id)" x-cloak
                                   class="absolute -right-2 -top-2 flex h-7 min-w-[28px] items-center justify-center rounded-full bg-ink-900 px-2 text-xs font-bold text-white shadow"
                                   :class="bump === p.id && 'animate-bump'" x-text="diKeranjang(p.id)"></span>
 
-                            <span class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
-                                <span class="h-1.5 w-1.5 rounded-full" :class="warna(p.kategori)"></span>
-                                <span x-text="namaKategori(p.kategori)"></span>
-                                <span x-show="p.paket" class="badge-brand ml-auto normal-case tracking-normal">Paket</span>
-                            </span>
-                            <span class="mt-2 font-display text-[17px] font-semibold leading-snug text-ink-900" x-text="p.nama"></span>
-                            <span x-show="p.paket" class="mt-1 truncate text-xs text-ink-500" x-text="p.paket"></span>
+                            <span class="font-display text-base font-semibold leading-snug text-ink-900" x-text="p.nama"></span>
 
-                            <span class="mt-auto flex items-end justify-between gap-2 pt-4">
-                                <span>
-                                    <span class="block text-base font-bold text-brand-700" x-text="rupiah(p.harga)"></span>
-                                    <template x-if="sisa(p) !== null">
-                                        <span class="text-[11px] font-medium"
-                                              :class="sisa(p) <= 0 ? 'text-red-600' : (sisa(p) <= p.minimum ? 'text-amber-700' : 'text-ink-400')"
-                                              x-text="sisa(p) <= 0 ? 'Stok habis' : `Sisa ${sisa(p)}`"></span>
-                                    </template>
-                                </span>
-                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-700 transition group-hover:bg-brand-600 group-hover:text-white">
-                                    <x-icon name="plus" class="h-5 w-5" />
-                                </span>
+                            <span class="mt-auto flex items-baseline justify-between gap-2 pt-3">
+                                <span class="font-bold tabular-nums text-brand-700" x-text="rupiah(p.harga)"></span>
+                                <template x-if="sisa(p) !== null">
+                                    <span class="text-xs font-medium tabular-nums"
+                                          :class="sisa(p) <= 0 ? 'text-red-600' : (sisa(p) <= p.minimum ? 'text-amber-700' : 'text-ink-400')"
+                                          x-text="sisa(p) <= 0 ? 'Habis' : `Stok ${sisa(p)}`"></span>
+                                </template>
                             </span>
                         </button>
                     </li>
@@ -140,12 +129,35 @@
                 <h2 id="judul-pesanan" class="flex items-center gap-2 font-display text-2xl font-bold">
                     <x-icon name="note" class="h-6 w-6 text-brand-700" /> Detail Pesanan
                 </h2>
-                <p class="mt-1 text-sm text-ink-500"><span x-text="jumlahItem"></span> item</p>
+                <p class="mt-1 text-sm text-ink-500">
+                    <span x-text="jumlahItem"></span> item
+                    <span x-show="order.tahanId" x-cloak class="badge-warn ml-1">Belum bayar<span x-show="labelAktif" x-text="' · ' + labelAktif"></span></span>
+                </p>
             </div>
             <div class="flex items-center gap-1">
-                <button type="button" class="btn-ghost btn-sm text-red-600 hover:bg-red-50 hover:text-red-700" x-show="cart.length" @click="kosongkan()">Kosongkan</button>
+                <button type="button" class="btn-ghost btn-sm text-red-600 hover:bg-red-50 hover:text-red-700" x-show="cart.length && !order.tahanId" @click="kosongkan()">Kosongkan</button>
                 <button type="button" class="btn-icon lg:hidden" @click="keranjangMobile = false" aria-label="Tutup pesanan"><x-icon name="x" /></button>
             </div>
+        </div>
+
+        {{-- Pesanan yang sudah dicatat tapi belum dibayar --}}
+        <div x-show="tertahan.length" x-cloak class="border-t border-ink-100 px-6 pb-3 pt-3">
+            <p class="label mb-2">Belum dibayar (<span x-text="tertahan.length"></span>)</p>
+            <ul class="scroll-thin -mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="list" aria-label="Pesanan belum dibayar">
+                <template x-for="t in tertahan" :key="t.id">
+                    <li class="group relative shrink-0">
+                        <button type="button" @click="lanjutkan(t)"
+                                class="w-40 rounded-xl border px-3 py-2 text-left transition"
+                                :class="order.tahanId === t.id ? 'border-brand-600 bg-brand-50 ring-1 ring-brand-600' : 'border-ink-200 bg-white hover:border-ink-300'"
+                                :aria-pressed="(order.tahanId === t.id).toString()" :aria-label="`Buka ${label(t)}, ${rupiah(t.total)}`">
+                            <span class="block truncate pr-5 text-sm font-semibold" x-text="label(t)"></span>
+                            <span class="block text-xs text-ink-500"><span x-text="rupiah(t.total)"></span> · <span x-text="t.jam"></span></span>
+                        </button>
+                        <button type="button" @click="hapusTahan(t)" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-md text-ink-300 hover:bg-red-50 hover:text-red-600"
+                                :aria-label="`Hapus ${label(t)}`"><x-icon name="x" class="h-3.5 w-3.5" /></button>
+                    </li>
+                </template>
+            </ul>
         </div>
 
         <div class="grid grid-cols-[88px_1fr_76px] gap-3 border-y border-ink-100 bg-brand-50/50 px-6 py-4">
@@ -219,10 +231,17 @@
                     <dd class="font-display text-3xl font-bold tabular-nums text-brand-700" x-text="rupiah(total)"></dd>
                 </div>
             </dl>
-            <button type="button" class="btn-primary mt-4 w-full rounded-2xl py-4 text-base" @click="proses()" :disabled="!cart.length">
-                Proses Pesanan <x-icon name="arrow-right" class="h-5 w-5" />
-                <kbd class="ml-1 hidden rounded border border-white/20 px-1.5 text-[10px] font-semibold text-white/70 sm:inline">F9</kbd>
-            </button>
+            <div class="mt-4 grid grid-cols-[auto_1fr] gap-2">
+                <button type="button" class="btn-secondary rounded-2xl px-4 py-4" @click="tahan()" :disabled="!cart.length"
+                        title="Simpan pesanan ini dulu (belum bayar), lalu layani pelanggan lain">
+                    <x-icon name="clock" class="h-5 w-5" /> <span x-text="order.tahanId ? 'Perbarui' : 'Simpan'"></span>
+                    <kbd class="hidden rounded border border-ink-200 px-1.5 text-[10px] font-semibold text-ink-400 sm:inline">F8</kbd>
+                </button>
+                <button type="button" class="btn-primary rounded-2xl py-4 text-base" @click="proses()" :disabled="!cart.length">
+                    Bayar <x-icon name="arrow-right" class="h-5 w-5" />
+                    <kbd class="ml-1 hidden rounded border border-white/20 px-1.5 text-[10px] font-semibold text-white/70 sm:inline">F9</kbd>
+                </button>
+            </div>
         </div>
     </aside>
 
@@ -244,7 +263,7 @@
 
             <fieldset>
                 <legend class="label">Metode pembayaran</legend>
-                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <div class="grid grid-cols-2 gap-2">
                     @foreach ($metode as $m)
                         <label class="flex cursor-pointer flex-col items-center gap-1.5 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition focus-within:ring-2 focus-within:ring-brand-500"
                                :class="order.metode === '{{ $m }}' ? 'border-brand-600 bg-brand-50 text-brand-800' : 'border-ink-100 text-ink-600 hover:border-ink-200'">

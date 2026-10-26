@@ -89,7 +89,7 @@
 
     {{-- Konten --}}
     <div class="flex min-w-0 flex-1 flex-col">
-        <header class="no-print sticky top-0 z-20 border-b border-ink-100 bg-cream/85 backdrop-blur">
+        <header class="no-print sticky top-0 z-20 border-b border-ink-100 bg-cream/90 backdrop-blur">
             <div class="flex items-center gap-3 px-4 py-3 lg:px-8 lg:py-4">
                 <button type="button" class="btn-icon lg:hidden" @click="nav = true" aria-label="Buka menu">
                     <x-icon name="menu" />

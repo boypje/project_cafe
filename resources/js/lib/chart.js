@@ -2,17 +2,17 @@ import Chart from 'chart.js/auto';
 import { rupiah, ringkas, angka } from './util';
 
 export const WARNA = {
-    brand: '#9A5723',
-    brandSoft: 'rgba(154,87,35,.12)',
+    brand: '#93322A',
+    brandSoft: 'rgba(147,50,42,.12)',
     ink: '#2A1F19',
     inkSoft: 'rgba(42,31,25,.08)',
     hijau: '#2F7D4F',
     merah: '#C2410C',
     abu: '#BFAE9F',
-    seri: ['#9A5723', '#2A1F19', '#CC8746', '#2F7D4F', '#7D6656', '#0E7490', '#B45309', '#9F1239', '#4D7C0F', '#6D28D9'],
+    seri: ['#93322A', '#2A1F19', '#E08A2E', '#2F7D4F', '#7D6656', '#0E7490', '#B45309', '#9F1239', '#4D7C0F', '#6D28D9'],
 };
 
-Chart.defaults.font.family = '"Plus Jakarta Sans", system-ui, sans-serif';
+Chart.defaults.font.family = '"DM Sans", system-ui, sans-serif';
 Chart.defaults.font.size = 12;
 Chart.defaults.color = '#7D6656';
 Chart.defaults.borderColor = 'rgba(42,31,25,.06)';

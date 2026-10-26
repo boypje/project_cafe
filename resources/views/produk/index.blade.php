@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" x-init="$watch('kat', () => hal = 1); $watch('status', () => hal = 1)">
         <div class="flex flex-wrap items-end gap-3 border-b border-ink-100 p-4">
             <div class="min-w-[200px] flex-1 sm:max-w-xs">
                 <label for="cari-produk" class="label">Cari</label>
@@ -61,7 +61,7 @@
                     <template x-if="loading">
                         <tr><td colspan="7"><div class="space-y-2 py-2"><div class="skeleton h-5"></div><div class="skeleton h-5 w-2/3"></div></div></td></tr>
                     </template>
-                    <template x-for="p in daftar" :key="p.id">
+                    <template x-for="p in bagian(daftar)" :key="p.id">
                         <tr :class="!p.tampil_kasir && 'opacity-60'">
                             <td>
                                 <p class="font-semibold text-ink-900" x-text="p.nama"></p>
@@ -92,6 +92,7 @@
                 </tbody>
             </table>
         </div>
+        @include('partials.pager', ['page' => 'halAktif(daftar)', 'last' => 'util.jumlahHalaman(daftar, perHal)', 'count' => 'daftar.length', 'set' => '((n) => pindah(n, daftar))'])
     </div>
 
     <x-dialog show="open" title="Produk" size="max-w-2xl">

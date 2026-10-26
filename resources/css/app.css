@@ -6,6 +6,7 @@
     html { -webkit-tap-highlight-color: transparent; }
     body { @apply bg-cream text-ink-900 font-sans antialiased; }
     h1, h2, h3 { @apply text-ink-900; }
+    .font-display { letter-spacing: -0.02em; }
     :focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-cream; }
     [x-cloak] { display: none !important; }
     input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }

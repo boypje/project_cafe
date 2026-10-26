@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Pengeluaran;
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
+use App\Models\PesananTahan;
 use App\Models\Produk;
 use App\Models\Setting;
 use App\Models\User;
@@ -17,7 +18,7 @@ use Illuminate\Validation\Rule;
 
 class KasirController extends Controller
 {
-    public const METODE = ['Tunai', 'Debit', 'QRIS', 'Transfer'];
+    public const METODE = ['Tunai', 'Transfer'];
 
     public function index()
     {
@@ -32,8 +33,11 @@ class KasirController extends Controller
     {
         $produk = Produk::with(['komponen', 'category'])
             ->where('tampil_kasir', true)
-            ->orderBy('nama_produk')
             ->get()
+            ->sortBy(function ($p) {
+                return sprintf('%03d|%s', optional($p->category)->urutan ?? 999, $p->nama_produk);
+            })
+            ->values()
             ->map(function ($p) {
                 return [
                     'id' => $p->id_produk,
@@ -52,7 +56,7 @@ class KasirController extends Controller
                 ];
             });
 
-        $kategori = Category::orderBy('nama_kategori')->get(['id_category as id', 'nama_kategori as nama']);
+        $kategori = Category::orderBy('urutan')->orderBy('nama_kategori')->get(['id_category as id', 'nama_kategori as nama']);
 
         // Stok seluruh bahan/produk satuan (termasuk yang tidak tampil di kasir).
         $stok = Produk::where('kelola_stok', true)->pluck('stok', 'id_produk');
@@ -73,6 +77,7 @@ class KasirController extends Controller
             'nama_pelanggan' => 'nullable|string|max:100',
             'meja' => 'nullable|string|max:20',
             'catatan' => 'nullable|string|max:255',
+            'tahan_id' => 'nullable|integer',
         ], [
             'items.required' => 'Pesanan masih kosong.',
             'metode.in' => 'Metode pembayaran tidak dikenal.',
@@ -135,6 +140,11 @@ class KasirController extends Controller
 
             $stok->potongPenjualan($penjualan->id_penjualan, $items);
 
+            // Pesanan tertahan yang dibayar tidak lagi menunggu.
+            if (! empty($data['tahan_id'])) {
+                PesananTahan::where('id_pesanan_tahan', $data['tahan_id'])->delete();
+            }
+
             return $penjualan;
         });
 
@@ -149,6 +159,74 @@ class KasirController extends Controller
                 ? 'Stok minus untuk: ' . $kurang->pluck('nama')->implode(', ') . '. Segera lakukan stok masuk.'
                 : null,
         ]);
+    }
+
+    /** Daftar pesanan tertahan (belum dibayar), dipakai bersama semua kasir. */
+    public function tahanIndex()
+    {
+        $tahan = PesananTahan::with('user')->orderBy('created_at')->get();
+        $produk = Produk::whereIn('id_produk', $tahan->pluck('items')->flatten(1)->pluck('id')->unique())
+            ->get(['id_produk', 'nama_produk', 'harga_jual'])->keyBy('id_produk');
+
+        return response()->json($tahan->map(function ($t) use ($produk) {
+            $items = collect($t->items)->filter(function ($i) use ($produk) {
+                return $produk->has($i['id']);
+            });
+
+            return [
+                'id' => $t->id_pesanan_tahan,
+                'meja' => $t->meja,
+                'pelanggan' => $t->nama_pelanggan,
+                'pengunjung' => $t->pengunjung,
+                'catatan' => $t->catatan,
+                'items' => $items->values(),
+                'jumlah_item' => $items->sum('jumlah'),
+                'total' => $items->sum(function ($i) use ($produk) {
+                    return $produk[$i['id']]->harga_jual * $i['jumlah'];
+                }),
+                'jam' => $t->created_at->format('H:i'),
+                'kasir' => optional($t->user)->name,
+            ];
+        }));
+    }
+
+    /** Simpan pesanan yang belum dibayar. Dengan id: perbarui pesanan tertahan itu. */
+    public function tahanSimpan(Request $request)
+    {
+        $data = $request->validate([
+            'id' => 'nullable|integer|exists:pesanan_tahan,id_pesanan_tahan',
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|integer|exists:produk,id_produk',
+            'items.*.jumlah' => 'required|integer|min:1|max:999',
+            'pengunjung' => 'nullable|integer|min:0|max:500',
+            'nama_pelanggan' => 'nullable|string|max:100',
+            'meja' => 'nullable|string|max:20',
+            'catatan' => 'nullable|string|max:255',
+        ], ['items.required' => 'Pesanan masih kosong.']);
+
+        $tahan = PesananTahan::findOrNew($data['id'] ?? null);
+        $tahan->fill([
+            'items' => collect($data['items'])->map(function ($i) {
+                return ['id' => (int) $i['id'], 'jumlah' => (int) $i['jumlah']];
+            })->values()->all(),
+            'pengunjung' => $data['pengunjung'] ?? 1,
+            'nama_pelanggan' => $data['nama_pelanggan'] ?? null,
+            'meja' => $data['meja'] ?? null,
+            'catatan' => $data['catatan'] ?? null,
+        ]);
+        if (! $tahan->exists) {
+            $tahan->id_user = auth()->id();
+        }
+        $tahan->save();
+
+        return response()->json(['id' => $tahan->id_pesanan_tahan, 'message' => 'Pesanan disimpan, belum dibayar.']);
+    }
+
+    public function tahanHapus($id)
+    {
+        PesananTahan::where('id_pesanan_tahan', $id)->delete();
+
+        return response()->json(['message' => 'Pesanan tertahan dihapus.']);
     }
 
     public function nota($id)

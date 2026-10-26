@@ -1,4 +1,4 @@
-import { api, debounce } from '../lib/util';
+import { api, debounce, potong, jumlahHalaman } from '../lib/util';
 
 /**
  * Komponen tabel + form modal generik untuk halaman master.
@@ -35,11 +35,28 @@ export default (config) => ({
             this.load();
         }, 300));
         this.$watch('q', debounce(() => {
+            this.hal = 1;
             if (config.paginate) {
                 this.page = 1;
                 this.load();
             }
         }, 300));
+    },
+
+    // Pagination di browser untuk daftar yang dimuat sekaligus (non-paginate).
+    hal: 1,
+    perHal: config.perHalaman || 15,
+
+    halAktif(list) {
+        return Math.min(this.hal, jumlahHalaman(list, this.perHal));
+    },
+
+    bagian(list) {
+        return potong(list, this.halAktif(list), this.perHal);
+    },
+
+    pindah(n, list) {
+        this.hal = Math.min(Math.max(n, 1), jumlahHalaman(list, this.perHal));
     },
 
     async load() {

@@ -2,24 +2,31 @@
 
 @section('title', 'Masuk')
 
+@php $toko = \App\Models\Setting::toko(); @endphp
+
 @section('body')
-<main id="konten" class="grid min-h-full lg:grid-cols-2">
-    <section class="relative hidden overflow-hidden bg-ink-900 p-12 text-white lg:flex lg:flex-col lg:justify-between" aria-hidden="true">
-        <div class="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-600/30 blur-3xl"></div>
-        <div class="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-brand-400/10 blur-3xl"></div>
-        <p class="relative font-display text-3xl font-bold text-brand-200">{{ $namaToko ?? 'Altari' }}</p>
-        <div class="relative max-w-md">
-            <p class="font-display text-4xl font-semibold leading-tight">Kasir cepat, stok rapi, laporan jelas.</p>
-            <p class="mt-4 text-ink-300">Satu aplikasi untuk mencatat pesanan, memantau bahan, dan membaca kinerja usaha setiap hari.</p>
-        </div>
-        <p class="relative text-sm text-ink-400">&copy; {{ date('Y') }} {{ $namaToko ?? 'Altari' }}</p>
-    </section>
+<main id="konten" class="grid min-h-full lg:grid-cols-[1.1fr_1fr]">
+    <figure class="relative hidden overflow-hidden bg-ink-900 lg:block">
+        <img src="{{ asset('img/warung-altari.webp') }}" alt="Tampak depan Warung Altari"
+             class="absolute inset-0 h-full w-full object-cover object-center">
+        <div class="absolute inset-0 bg-black/[.65]" aria-hidden="true"></div>
+        <figcaption class="absolute inset-0 flex flex-col justify-end p-12 text-white">
+            <p class="font-display text-5xl font-bold">{{ $toko->nama_usaha }}</p>
+            @if ($toko->alamat)
+                <p class="mt-3 max-w-md text-base text-white/75">{{ $toko->alamat }}{{ $toko->kota ? ', ' . $toko->kota : '' }}</p>
+            @endif
+        </figcaption>
+    </figure>
 
     <section class="flex items-center justify-center px-6 py-12">
         <div class="w-full max-w-sm">
-            <p class="mb-8 font-display text-3xl font-bold text-brand-700 lg:hidden">{{ $namaToko ?? 'Altari' }}</p>
-            <h1 class="font-display text-3xl font-bold">Selamat datang</h1>
-            <p class="mt-2 text-sm text-ink-500">Masuk untuk mulai melayani pelanggan.</p>
+            <div class="relative mb-8 h-40 overflow-hidden rounded-2xl lg:hidden" aria-hidden="true">
+                <img src="{{ asset('img/warung-altari.webp') }}" alt="" class="h-full w-full object-cover">
+                <div class="absolute inset-0 bg-black/[.65]"></div>
+                <p class="absolute bottom-4 left-5 font-display text-2xl font-bold text-white">{{ $toko->nama_usaha }}</p>
+            </div>
+            <h1 class="font-display text-4xl font-bold">Masuk</h1>
+            <p class="mt-1 text-sm text-ink-500">Gunakan akun kasir atau admin.</p>
 
             @if (session('status'))
                 <div class="mt-6 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{{ session('status') }}</div>
@@ -30,7 +37,7 @@
                 <div>
                     <label for="email" class="label">Email</label>
                     <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
-                           class="input @error('email') input-error @enderror" placeholder="nama@altari"
+                           class="input @error('email') input-error @enderror"
                            @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
                     @error('email')
                         <p id="email-error" class="error-text">{{ $message }}</p>
@@ -54,9 +61,8 @@
                     <input type="checkbox" name="remember" class="rounded border-ink-300 text-brand-600 focus:ring-brand-500">
                     Ingat saya di perangkat ini
                 </label>
-                <button type="submit" class="btn-primary w-full py-3" :disabled="kirim">
+                <button type="submit" class="btn-primary w-full py-3 text-base" :disabled="kirim">
                     <span x-text="kirim ? 'Memproses…' : 'Masuk'">Masuk</span>
-                    <x-icon name="arrow-right" class="h-4 w-4" />
                 </button>
             </form>
         </div>

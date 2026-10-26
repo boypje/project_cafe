@@ -33,7 +33,7 @@
                 <thead><tr><th>Tanggal</th><th>Keterangan</th><th class="num">Nominal</th><th class="w-24"><span class="sr-only">Aksi</span></th></tr></thead>
                 <tbody>
                     <template x-if="loading"><tr><td colspan="4"><div class="skeleton h-6"></div></td></tr></template>
-                    <template x-for="r in tampil" :key="r.id">
+                    <template x-for="r in bagian(tampil)" :key="r.id">
                         <tr>
                             <td class="whitespace-nowrap" x-text="util.tanggal(r.tanggal)"></td>
                             <td x-text="r.deskripsi"></td>
@@ -48,6 +48,7 @@
                 </tbody>
             </table>
         </div>
+        @include('partials.pager', ['page' => 'halAktif(tampil)', 'last' => 'util.jumlahHalaman(tampil, perHal)', 'count' => 'tampil.length', 'set' => '((n) => pindah(n, tampil))'])
     </div>
 
     <x-dialog show="open" title="Modal">

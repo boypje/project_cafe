@@ -13,8 +13,8 @@ module.exports = {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
-                display: ['"Playfair Display"', ...defaultTheme.fontFamily.serif],
+                sans: ['"DM Sans"', ...defaultTheme.fontFamily.sans],
+                display: ['"DM Sans"', ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 // Espresso: teks, tombol utama, sidebar
@@ -22,10 +22,10 @@ module.exports = {
                     50: '#F7F4F1', 100: '#EDE7E1', 200: '#DBD0C6', 300: '#BFAE9F', 400: '#9C8574',
                     500: '#7D6656', 600: '#64503F', 700: '#4E3E32', 800: '#3A2E26', 900: '#2A1F19', 950: '#1C1410',
                 },
-                // Karamel: aksen brand, harga, status aktif
+                // Marun spanduk Warung Altari: aksen brand, harga, status aktif
                 brand: {
-                    50: '#FBF5EE', 100: '#F5E6D3', 200: '#EACBA6', 300: '#DCA971', 400: '#CC8746',
-                    500: '#B86E2E', 600: '#9A5723', 700: '#7E461F', 800: '#67391D', 900: '#55301A',
+                    50: '#FBF3F2', 100: '#F6E1DE', 200: '#EDC1BB', 300: '#DE958C', 400: '#C9675C',
+                    500: '#AE463B', 600: '#93322A', 700: '#792722', 800: '#63211E', 900: '#521E1C',
                 },
                 cream: '#FAF7F2',
             },
