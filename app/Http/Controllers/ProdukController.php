@@ -1,122 +1,143 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Produk;
+
 use App\Models\Category;
-
-
+use App\Models\PenjualanDetail;
+use App\Models\Produk;
+use App\Models\ProdukKomponen;
+use App\Services\StokService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ProdukController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $category = Category::all()->pluck('nama_kategori', 'id_category');
-        return view('produk.index', compact('category'));
+        return view('produk.index', [
+            'kategori' => Category::orderBy('nama_kategori')->get(['id_category', 'nama_kategori']),
+        ]);
     }
 
     public function data()
     {
-        $produk = Produk::leftJoin('category', 'category.id_category', 'produk.id_category')
-            ->select('produk.*', 'nama_kategori')
-            ->orderBy('id_category', 'asc')->get();
+        $produk = Produk::with(['category', 'komponen'])->orderBy('nama_produk')->get();
 
-        return datatables()
-            ->of($produk)
-            ->addIndexColumn()
-            ->addColumn('harga_jual', function ($produk){
-                return format_money($produk->harga_jual);
-            })
-            ->addColumn('aksi', function ($produk) {
-                return '
-                <div class="btn-group">
-                    <button onclick="editForm(`'. route('produk.update', $produk->id_produk) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"> Edit</i></button>
-                    <button onclick="deleteData(`'. route('produk.destroy', $produk->id_produk) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"> Hapus</i></button>
-                </div>
-                ';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+        return response()->json($produk->map(function ($p) {
+            $hpp = $p->hppEfektif();
+            return [
+                'id' => $p->id_produk,
+                'nama' => $p->nama_produk,
+                'id_category' => $p->id_category,
+                'kategori' => optional($p->category)->nama_kategori,
+                'harga_jual' => (int) $p->harga_jual,
+                'harga_pokok' => (int) $p->harga_pokok,
+                'hpp' => $hpp,
+                'margin' => $p->harga_jual > 0 && $hpp > 0 ? round(($p->harga_jual - $hpp) / $p->harga_jual * 100, 1) : null,
+                'stok' => (int) $p->stok,
+                'tersedia' => $p->stokTersedia(),
+                'satuan' => $p->satuan,
+                'stok_minimum' => (int) $p->stok_minimum,
+                'kelola_stok' => $p->kelola_stok,
+                'tampil_kasir' => $p->tampil_kasir,
+                'komponen' => $p->komponen->map(function ($k) {
+                    return ['id' => $k->id_produk, 'nama' => $k->nama_produk, 'jumlah' => (int) $k->pivot->jumlah];
+                })->values(),
+            ];
+        }));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    private function validasi(Request $request, $id = null)
     {
-        //
+        return $request->validate([
+            'nama' => ['required', 'string', 'max:255', Rule::unique('produk', 'nama_produk')->ignore($id, 'id_produk')],
+            'id_category' => 'required|exists:category,id_category',
+            'harga_jual' => 'required|integer|min:0',
+            'harga_pokok' => 'nullable|integer|min:0',
+            'stok' => 'nullable|integer',
+            'satuan' => 'nullable|string|max:20',
+            'stok_minimum' => 'nullable|integer|min:0',
+            'kelola_stok' => 'boolean',
+            'tampil_kasir' => 'boolean',
+            'komponen' => 'array',
+            'komponen.*.id' => ['required', 'integer', 'exists:produk,id_produk', Rule::notIn([$id])],
+            'komponen.*.jumlah' => 'required|integer|min:1|max:99',
+        ], [
+            'nama.unique' => 'Nama produk sudah dipakai.',
+            'komponen.*.id.not_in' => 'Produk tidak boleh menjadi komponen dirinya sendiri.',
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    private function simpan(Produk $produk, array $data, StokService $stok)
     {
-        $produk = Produk::create($request->all());
+        DB::transaction(function () use ($produk, $data, $stok) {
+            $baru = ! $produk->exists;
+            $produk->fill([
+                'nama_produk' => $data['nama'],
+                'id_category' => $data['id_category'],
+                'harga_jual' => $data['harga_jual'],
+                'harga_pokok' => $data['harga_pokok'] ?? 0,
+                'satuan' => $data['satuan'] ?? 'porsi',
+                'stok_minimum' => $data['stok_minimum'] ?? 0,
+                'kelola_stok' => $data['kelola_stok'] ?? true,
+                'tampil_kasir' => $data['tampil_kasir'] ?? true,
+            ]);
+            if ($baru) {
+                $produk->stok = 0;
+            }
+            $produk->save();
 
-        return response()->json('Data berhasil ditambahkan', 200);
+            // Perubahan stok dari form dicatat sebagai stok awal / stok opname.
+            $target = $data['stok'] ?? null;
+            if ($target !== null && (int) $target !== (int) $produk->stok && empty($data['komponen'])) {
+                $stok->mutasi($produk, (int) $target - (int) $produk->stok, $baru ? 'masuk' : 'koreksi', [
+                    'keterangan' => $baru ? 'Stok awal' : 'Ubah stok dari data produk',
+                ]);
+            }
+
+            ProdukKomponen::where('id_produk', $produk->id_produk)->delete();
+            foreach (collect($data['komponen'] ?? [])->unique('id') as $k) {
+                ProdukKomponen::create([
+                    'id_produk' => $produk->id_produk,
+                    'id_komponen' => $k['id'],
+                    'jumlah' => $k['jumlah'],
+                ]);
+            }
+        });
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function store(Request $request, StokService $stok)
     {
-        $produk = Produk::find($id);
+        $this->simpan(new Produk(), $this->validasi($request), $stok);
 
-        return response()->json($produk);
+        return response()->json(['message' => 'Produk ditambahkan.']);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function update(Request $request, $id, StokService $stok)
     {
-        //
+        $produk = Produk::findOrFail($id);
+        $this->simpan($produk, $this->validasi($request, $id), $stok);
+
+        return response()->json(['message' => 'Produk diperbarui.']);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $produk = Produk::find($id);
-        $produk->update($request->all());
-
-        return response()->json('Data berhasil disimpan', 200);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        $produk = Produk::find($id);
+        $produk = Produk::findOrFail($id);
+
+        if (PenjualanDetail::where('id_produk', $id)->exists()) {
+            return response()->json([
+                'message' => 'Produk sudah pernah terjual sehingga tidak bisa dihapus (riwayat laporan akan rusak). Nonaktifkan "Tampil di kasir" saja.',
+            ], 422);
+        }
+
+        if (ProdukKomponen::where('id_komponen', $id)->exists()) {
+            return response()->json(['message' => 'Produk masih dipakai sebagai komponen paket lain.'], 422);
+        }
+
         $produk->delete();
 
-        return response(null, 204);
+        return response()->json(['message' => 'Produk dihapus.']);
     }
 }

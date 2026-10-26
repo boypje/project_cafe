@@ -59,13 +59,13 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    public function isAdmin()
+    {
+        return (int) $this->level === 1;
+    }
+
     public function scopeIsNotAdmin($query)
     {
         return $query->where('level', '!=', 1);
-    }
-
-    public function pelayanan()
-    {
-        return $this->hasMany(Penjualan::class, 'id_penjualan', 'id_penjualan');
     }
 }

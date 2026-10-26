@@ -3,159 +3,115 @@
 namespace App\Http\Controllers;
 
 use App\Models\Penjualan;
-use App\Models\PenjualanDetail;
-use App\Models\Produk;
-use App\Models\Setting;
+use App\Models\User;
+use App\Services\StokService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use PDF;
+use Illuminate\Support\Facades\DB;
 
 class PenjualanController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        return view('penjualan.index');
+        return view('penjualan.index', [
+            'users' => User::orderBy('name')->get(['id', 'name']),
+            'metode' => KasirController::METODE,
+        ]);
     }
 
-    public function data()
+    public function data(Request $request)
     {
-        $penjualan = Penjualan::orderBy('id_penjualan', 'desc')->get();
+        $awal = $request->input('awal', today()->startOfMonth()->toDateString());
+        $akhir = $request->input('akhir', today()->toDateString());
 
-        return datatables()
-            ->of($penjualan)
-            ->addIndexColumn()
-            ->addColumn('id_penjualan', function ($penjualan) {
-                return tambah_nol_didepan($penjualan->id_penjualan, 10);
+        $q = Penjualan::valid()->with('user')
+            ->whereBetween('created_at', [Carbon::parse($awal)->startOfDay(), Carbon::parse($akhir)->endOfDay()])
+            ->when($request->metode, function ($q, $v) {
+                $q->where('metode', $v);
             })
-            ->addColumn('metode', function ($penjualan) {
-                return $penjualan->metode;
+            ->when($request->user, function ($q, $v) {
+                $q->where('id_user', $v);
             })
-            ->addColumn('total_harga', function ($penjualan) {
-                return format_money($penjualan->total_harga);
-            })
-            ->editColumn('diskon', function ($penjualan) {
-                return $penjualan->diskon . '%';
-            })
-            ->addColumn('bayar', function ($penjualan) {
-                return format_money($penjualan->bayar);
-            })
-            ->addColumn('tanggal', function ($penjualan) {
-                return tanggal_indonesia($penjualan->created_at, false);
-            })
-            ->editColumn('kasir', function ($penjualan) {
-                return $penjualan->user->name ?? '';
-            })
-            ->addColumn('aksi', function ($penjualan) {
-                return '
-                <div class="btn-group">
-                    <button onclick="showDetail(`'. route('penjualan.show', $penjualan->id_penjualan) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-eye"></i></button>
-                    <button onclick="deleteData(`'. route('penjualan.destroy', $penjualan->id_penjualan) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-                </div>
-                ';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
-    }
+            ->when($request->cari, function ($q, $v) {
+                $angka = (int) preg_replace('/\D/', '', $v);
+                $q->where(function ($w) use ($v, $angka) {
+                    $w->where('nama_pelanggan', 'like', "%$v%")->orWhere('meja', $v);
+                    if ($angka) {
+                        $w->orWhere('id_penjualan', $angka);
+                    }
+                });
+            });
 
-    public function create()
-    {
-        $penjualan = new Penjualan();
-        $penjualan->total_item = 0;
-        $penjualan->metode="";
-        $penjualan->total_harga = 0;
-        $penjualan->diskon = 0;
-        $penjualan->bayar = 0;
-        $penjualan->diterima = 0;
-        $penjualan->id_user = auth()->id();
-        $penjualan->save();
+        $total = (clone $q)->selectRaw('COUNT(*) as transaksi, COALESCE(SUM(bayar),0) as bayar, COALESCE(SUM(diskon),0) as diskon')->first();
+        $page = $q->orderByDesc('id_penjualan')->paginate(25);
 
-        session(['id_penjualan' => $penjualan->id_penjualan]);
-        return redirect()->route('transaksi.index');
-    }
-
-    public function store(Request $request)
-    {
-        $penjualan = Penjualan::findOrFail($request->id_penjualan);
-        $penjualan->metode = $request->metode;
-        $penjualan->total_item = $request->total_item;
-        $penjualan->total_harga = $request->total;
-        $penjualan->diskon = $request->diskon;
-        $penjualan->bayar = $request->bayar;
-        $penjualan->diterima = $request->diterima;
-        $penjualan->update();
-
-
-
-        $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
-        foreach ($detail as $item) {
-            $item->diskon = $request->diskon;
-            $produk = Produk::find($item->id_produk);
-            $produk->stok -= $item->jumlah;
-            $produk->update();
-        }
-
-        return redirect()->route('transaksi.selesai');
+        return response()->json([
+            'data' => collect($page->items())->map(function ($p) {
+                return [
+                    'id' => $p->id_penjualan,
+                    'nomor' => $p->nomor,
+                    'waktu' => $p->created_at->format('Y-m-d H:i'),
+                    'metode' => $p->metode,
+                    'item' => (int) $p->total_item,
+                    'total_harga' => (int) $p->total_harga,
+                    'diskon' => (int) $p->diskon,
+                    'pajak' => (int) $p->pajak,
+                    'bayar' => (int) $p->bayar,
+                    'meja' => $p->meja,
+                    'pelanggan' => $p->nama_pelanggan,
+                    'kasir' => optional($p->user)->name,
+                ];
+            }),
+            'page' => $page->currentPage(),
+            'last_page' => $page->lastPage(),
+            'total' => $page->total(),
+            'ringkasan' => $total,
+        ]);
     }
 
     public function show($id)
     {
-        $detail = PenjualanDetail::with('produk')->where('id_penjualan', $id)->get();
+        $p = Penjualan::with(['detail.produk', 'user'])->findOrFail($id);
 
-        return datatables()
-            ->of($detail)
-            ->addIndexColumn()
-            ->addColumn('nama_produk', function ($detail) {
-                return $detail->produk->nama_produk;
-            })
-            ->addColumn('harga_jual', function ($detail) {
-                return format_money($detail->harga_jual);
-            })
-            ->addColumn('jumlah', function ($detail) {
-                return $detail->jumlah;
-            })
-            ->addColumn('subtotal', function ($detail) {
-                return format_money($detail->subtotal);
-            })
-            ->rawColumns(['nama_produk'])
-            ->make(true);
+        return response()->json([
+            'id' => $p->id_penjualan,
+            'nomor' => $p->nomor,
+            'waktu' => $p->created_at->format('Y-m-d H:i'),
+            'kasir' => optional($p->user)->name,
+            'metode' => $p->metode,
+            'meja' => $p->meja,
+            'pelanggan' => $p->nama_pelanggan,
+            'pengunjung' => (int) $p->pengunjung,
+            'catatan' => $p->catatan,
+            'total_harga' => (int) $p->total_harga,
+            'diskon' => (int) $p->diskon,
+            'pajak' => (int) $p->pajak,
+            'bayar' => (int) $p->bayar,
+            'diterima' => (int) $p->diterima,
+            'nota_url' => route('kasir.nota', $p->id_penjualan),
+            'items' => $p->detail->map(function ($d) {
+                return [
+                    'nama' => optional($d->produk)->nama_produk ?? '(produk dihapus)',
+                    'harga' => (int) $d->harga_jual,
+                    'jumlah' => (int) $d->jumlah,
+                    'subtotal' => (int) $d->subtotal,
+                ];
+            }),
+        ]);
     }
 
-    public function destroy($id)
+    /** Batalkan transaksi: stok dikembalikan lalu data dihapus. */
+    public function destroy($id, StokService $stok)
     {
-        $penjualan = Penjualan::find($id);
-        $detail    = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
-        foreach ($detail as $item) {
-            $produk = Produk::find($item->id_produk);
-            if ($produk) {
-                $produk->stok += $item->jumlah;
-                $produk->update();
-            }
+        $penjualan = Penjualan::with('detail')->findOrFail($id);
 
-            $item->delete();
-        }
+        DB::transaction(function () use ($penjualan, $stok) {
+            $lunas = $penjualan->metode !== null && $penjualan->metode !== '';
+            $stok->kembalikanPenjualan($penjualan->id_penjualan, $penjualan->detail, $lunas);
+            $penjualan->detail()->delete();
+            $penjualan->delete();
+        });
 
-        $penjualan->delete();
-
-        return response(null, 204);
-    }
-
-    public function selesai()
-    {
-        $setting = Setting::first();
-
-        return view('penjualan.selesai', compact('setting'));
-    }
-
-    public function notaKecil()
-    {
-        $setting = Setting::first();
-        $penjualan = Penjualan::find(session('id_penjualan'));
-        if (! $penjualan) {
-            abort(404);
-        }
-        $detail = PenjualanDetail::with('produk')
-            ->where('id_penjualan', session('id_penjualan'))
-            ->get();
-        
-        return view('penjualan.nota_kecil', compact('setting', 'penjualan', 'detail'));
+        return response()->json(['message' => 'Transaksi dibatalkan dan stok dikembalikan.']);
     }
 }

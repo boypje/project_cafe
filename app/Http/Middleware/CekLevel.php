@@ -21,6 +21,10 @@ class CekLevel
             return $next($request);
         }
 
+        if ($request->expectsJson()) {
+            abort(403, 'Anda tidak memiliki akses ke fitur ini.');
+        }
+
         return redirect()->route('dashboard');
     }
 }

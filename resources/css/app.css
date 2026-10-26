@@ -1,3 +1,80 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+@layer base {
+    html { -webkit-tap-highlight-color: transparent; }
+    body { @apply bg-cream text-ink-900 font-sans antialiased; }
+    h1, h2, h3 { @apply text-ink-900; }
+    :focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-cream; }
+    [x-cloak] { display: none !important; }
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+}
+
+@layer components {
+    .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+        disabled:cursor-not-allowed disabled:opacity-50 active:scale-[.98] whitespace-nowrap; }
+    .btn-sm { @apply px-3 py-1.5 text-xs rounded-lg; }
+    .btn-primary { @apply btn bg-ink-900 text-white shadow-soft hover:bg-ink-800; }
+    .btn-brand { @apply btn bg-brand-600 text-white shadow-soft hover:bg-brand-700; }
+    .btn-secondary { @apply btn border border-ink-200 bg-white text-ink-800 hover:border-ink-300 hover:bg-ink-50; }
+    .btn-ghost { @apply btn text-ink-600 hover:bg-ink-100 hover:text-ink-900; }
+    .btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700; }
+    .btn-icon { @apply inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-500 transition hover:bg-ink-100 hover:text-ink-900; }
+
+    .label { @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-500; }
+    .input { @apply block w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder-ink-300
+        shadow-sm transition focus:border-brand-500 focus:ring-brand-500; }
+    .input-error { @apply border-red-400 focus:border-red-500 focus:ring-red-500; }
+    .error-text { @apply mt-1 text-xs font-medium text-red-600; }
+
+    .card { @apply rounded-2xl border border-ink-100 bg-white shadow-soft; }
+    .card-pad { @apply p-5 lg:p-6; }
+    .card-title { @apply font-display text-lg font-semibold text-ink-900; }
+
+    .badge { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold; }
+    .badge-ok { @apply badge bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20; }
+    .badge-warn { @apply badge bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/20; }
+    .badge-bad { @apply badge bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20; }
+    .badge-muted { @apply badge bg-ink-100 text-ink-600; }
+    .badge-brand { @apply badge bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-600/20; }
+
+    .chip { @apply inline-flex shrink-0 items-center gap-2 rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-medium
+        text-ink-700 transition hover:border-ink-300; }
+    .chip-active { @apply border-ink-900 bg-ink-900 text-white shadow-soft hover:border-ink-900; }
+
+    .tbl { @apply w-full text-left text-sm; }
+    .tbl thead th { @apply sticky top-0 z-[1] whitespace-nowrap border-b border-ink-100 bg-ink-50 px-4 py-3 text-xs font-semibold
+        uppercase tracking-wide text-ink-500; }
+    .tbl tbody td { @apply border-b border-ink-50 px-4 py-3 align-middle; }
+    .tbl tbody tr { @apply transition-colors hover:bg-brand-50/40; }
+    .num { @apply text-right tabular-nums; }
+
+    .nav-link { @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-300 transition
+        hover:bg-white/5 hover:text-white; }
+    .nav-link[aria-current=page] { @apply bg-white/10 text-white; }
+    .nav-group { @apply mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-500; }
+
+    .skeleton { @apply animate-pulse rounded-lg bg-ink-100; }
+    .tabs { @apply flex gap-1 overflow-x-auto rounded-xl bg-ink-100/70 p-1; }
+    .tab { @apply shrink-0 rounded-lg px-3.5 py-2 text-sm font-medium text-ink-600 transition hover:text-ink-900; }
+    .tab[aria-selected=true] { @apply bg-white text-ink-900 shadow-sm; }
+}
+
+.turbo-progress-bar { height: 3px; background: theme('colors.brand.500'); }
+
+.scroll-thin { scrollbar-width: thin; scrollbar-color: theme('colors.ink.200') transparent; }
+.scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: theme('colors.ink.200'); border-radius: 9999px; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+@media print {
+    body { background: #fff !important; }
+    .no-print { display: none !important; }
+    .print-full { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+    .card { box-shadow: none !important; border-color: #ddd !important; break-inside: avoid; }
+}

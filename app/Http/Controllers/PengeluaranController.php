@@ -1,124 +1,121 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Pengeluaran;
-
-
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PengeluaranController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public const KATEGORI = ['Bahan Baku', 'Gaji', 'Sewa', 'Listrik & Air', 'Gas', 'Operasional', 'Perlengkapan', 'Perawatan', 'Lainnya'];
+
     public function index()
     {
-        return view('pengeluaran.index');
+        return view('pengeluaran.index', [
+            'kategori' => collect(self::KATEGORI)
+                ->merge(Pengeluaran::distinct()->pluck('kategori')->filter())
+                ->unique()->values(),
+            'metode' => KasirController::METODE,
+        ]);
     }
 
-    public function data()
+    public function data(Request $request)
     {
-        $pengeluaran = Pengeluaran::orderBy('id_pengeluaran', 'asc')->get();
+        $awal = $request->input('awal', today()->startOfMonth()->toDateString());
+        $akhir = $request->input('akhir', today()->toDateString());
 
-        return datatables()
-            ->of($pengeluaran)
-            ->addIndexColumn()
-            ->addColumn('created_at', function ($pengeluaran){
-                return tanggal_indonesia($pengeluaran->created_at, false);
+        $q = Pengeluaran::with('user')
+            ->whereBetween('created_at', [Carbon::parse($awal)->startOfDay(), Carbon::parse($akhir)->endOfDay()])
+            ->when($request->kategori, function ($q, $v) {
+                $q->where('kategori', $v);
             })
-            ->addColumn('metode', function ($penjualan) {
-                return $penjualan->metode;
-            })
-            ->addColumn('nominal', function ($pengeluaran){
-                return format_money($pengeluaran->nominal);
-            })
-            ->addColumn('aksi', function ($pengeluaran) {
-                return '
-                <div class="btn-group">
-                    <button onclick="editForm(`'. route('pengeluaran.update', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"> Edit</i></button>
-                    <button onclick="deleteData(`'. route('pengeluaran.destroy', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"> Hapus</i></button>
-                </div>
-                ';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+            ->when($request->cari, function ($q, $v) {
+                $q->where('deskripsi', 'like', "%$v%");
+            });
+
+        // Kasir hanya melihat pengeluaran yang ia catat sendiri.
+        if (! auth()->user()->isAdmin()) {
+            $q->where('id_user', auth()->id());
+        }
+
+        $jumlah = (int) (clone $q)->sum('nominal');
+        $page = $q->orderByDesc('created_at')->paginate(25);
+
+        return response()->json([
+            'data' => collect($page->items())->map(function ($p) {
+                return [
+                    'id' => $p->id_pengeluaran,
+                    'tanggal' => $p->created_at->format('Y-m-d'),
+                    'jam' => $p->created_at->format('H:i'),
+                    'deskripsi' => $p->deskripsi,
+                    'kategori' => $p->kategori,
+                    'metode' => $p->metode,
+                    'nominal' => (int) $p->nominal,
+                    'user' => optional($p->user)->name,
+                ];
+            }),
+            'page' => $page->currentPage(),
+            'last_page' => $page->lastPage(),
+            'total' => $page->total(),
+            'jumlah' => $jumlah,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    private function validasi(Request $request)
     {
-        //
+        return $request->validate([
+            'tanggal' => 'required|date|before_or_equal:today',
+            'deskripsi' => 'required|string|max:500',
+            'kategori' => 'required|string|max:50',
+            'metode' => ['required', Rule::in(KasirController::METODE)],
+            'nominal' => 'required|integer|min:1',
+        ], ['tanggal.before_or_equal' => 'Tanggal tidak boleh di masa depan.']);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    /** Tanggal pilihan digabung dengan jam sekarang (atau jam lama saat diedit). */
+    private function waktu($tanggal, $lama = null)
+    {
+        $jam = $lama ? $lama->format('H:i:s') : now()->format('H:i:s');
+
+        return Carbon::parse($tanggal . ' ' . $jam);
+    }
+
     public function store(Request $request)
     {
-        $pengeluaran = Pengeluaran::create($request->all());
+        $data = $this->validasi($request);
+        $p = new Pengeluaran(collect($data)->except('tanggal')->all());
+        $p->id_user = auth()->id();
+        $p->created_at = $this->waktu($data['tanggal']);
+        $p->save();
 
-        return response()->json('Data berhasil ditambahkan', 200);
+        return response()->json(['message' => 'Pengeluaran dicatat.']);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $pengeluaran = Pengeluaran::find($id);
-
-        return response()->json($pengeluaran);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        $pengeluaran = Pengeluaran::find($id);
-        $pengeluaran->update($request->all());
+        $p = $this->milik($id);
+        $data = $this->validasi($request);
+        $p->fill(collect($data)->except('tanggal')->all());
+        $p->created_at = $this->waktu($data['tanggal'], $p->created_at);
+        $p->save();
 
-        return response()->json('Data berhasil disimpan', 200);
+        return response()->json(['message' => 'Pengeluaran diperbarui.']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        $pengeluaran = Pengeluaran::find($id);
-        $pengeluaran->delete();
+        $this->milik($id)->delete();
 
-        return response(null, 204);
+        return response()->json(['message' => 'Pengeluaran dihapus.']);
+    }
+
+    private function milik($id)
+    {
+        $p = Pengeluaran::findOrFail($id);
+        abort_unless(auth()->user()->isAdmin() || $p->id_user == auth()->id(), 403);
+
+        return $p;
     }
 }

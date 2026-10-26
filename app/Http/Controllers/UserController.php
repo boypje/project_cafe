@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -15,141 +16,100 @@ class UserController extends Controller
 
     public function data()
     {
-        $user = User::isNotAdmin()->orderBy('id', 'desc')->get();
-
-        return datatables()
-            ->of($user)
-            ->addIndexColumn()
-            ->addColumn('aksi', function ($user) {
-                return '
-                <div class="btn-group">
-                    <button type="button" onclick="editForm(`'. route('user.update', $user->id) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
-                    <button type="button" onclick="deleteData(`'. route('user.destroy', $user->id) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-                </div>
-                ';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+        return response()->json(User::orderBy('level')->orderBy('name')->get()->map(function ($u) {
+            return [
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'level' => (int) $u->level,
+                'saya' => $u->id === auth()->id(),
+            ];
+        }));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    private function validasi(Request $request, $id = null)
     {
-        //
+        return $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
+            'level' => ['required', Rule::in([1, 2])],
+            'password' => [$id ? 'nullable' : 'required', 'string', 'min:6'],
+        ], ['email.unique' => 'Email sudah dipakai pengguna lain.']);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
+        $data = $this->validasi($request);
         $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = bcrypt($request->password);
-        $user->level = 2;
-        $user->foto = '/img/person.jpg';
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->level = $data['level'];
+        $user->password = Hash::make($data['password']);
         $user->save();
 
-        return response()->json('Data berhasil disimpan', 200);
+        return response()->json(['message' => 'Pengguna ditambahkan.']);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $user = User::find($id);
-
-        return response()->json($user);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
-        $user->name = $request->name;
-        $user->email = $request->email;
-        if ($request->has('password') && $request->password != "") 
-            $user->password = bcrypt($request->password);
-        $user->update();
+        $user = User::findOrFail($id);
+        $data = $this->validasi($request, $id);
 
-        return response()->json('Data berhasil disimpan', 200);
+        if ($user->id === auth()->id() && (int) $data['level'] !== 1) {
+            return response()->json(['message' => 'Anda tidak bisa menurunkan level akun sendiri.'], 422);
+        }
+
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->level = $data['level'];
+        if (! empty($data['password'])) {
+            $user->password = Hash::make($data['password']);
+        }
+        $user->save();
+
+        return response()->json(['message' => 'Pengguna diperbarui.']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        $user = User::find($id)->delete();
+        if ((int) $id === auth()->id()) {
+            return response()->json(['message' => 'Tidak bisa menghapus akun yang sedang dipakai.'], 422);
+        }
+        User::findOrFail($id)->delete();
 
-        return response(null, 204);
+        return response()->json(['message' => 'Pengguna dihapus.']);
     }
 
     public function profil()
     {
-        $profil = auth()->user();
-        return view('user.profil', compact('profil'));
+        return view('user.profil', ['profil' => auth()->user()]);
     }
 
     public function updateProfil(Request $request)
     {
         $user = auth()->user();
-        
-        $user->name = $request->name;
-        if ($request->has('password') && $request->password != "") {
-            if (Hash::check($request->old_password, $user->password)) {
-                if ($request->password == $request->password_confirmation) {
-                    $user->password = bcrypt($request->password);
-                } else {
-                    return response()->json('Konfirmasi password tidak sesuai', 422);
-                }
-            } else {
-                return response()->json('Password lama tidak sesuai', 422);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'old_password' => 'nullable|required_with:password|string',
+            'password' => 'nullable|string|min:6|confirmed',
+        ], [
+            'old_password.required_with' => 'Isi password lama untuk mengganti password.',
+            'password.confirmed' => 'Konfirmasi password tidak sama.',
+        ]);
+
+        if (! empty($data['password'])) {
+            if (! Hash::check($data['old_password'], $user->password)) {
+                return response()->json([
+                    'message' => 'Password lama tidak sesuai.',
+                    'errors' => ['old_password' => ['Password lama tidak sesuai.']],
+                ], 422);
             }
+            $user->password = Hash::make($data['password']);
         }
 
-        if ($request->hasFile('foto')) {
-            $file = $request->file('foto');
-            $nama = 'logo-' . date('YmdHis') . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('/img'), $nama);
+        $user->name = $data['name'];
+        $user->save();
 
-            $user->foto = "/img/$nama";
-        }
-
-        $user->update();
-
-        return response()->json($user, 200);
+        return response()->json(['message' => 'Profil diperbarui.']);
     }
 }

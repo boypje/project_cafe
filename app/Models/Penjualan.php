@@ -13,19 +13,24 @@ class Penjualan extends Model
     protected $primaryKey = 'id_penjualan';
     protected $guarded = [];
 
-    public function member()
-    {
-        return $this->hasOne(Member::class, 'id_member', 'id_member');
-    }
-
     public function user()
     {
-        return $this->belongsTo(User::class, 'id', 'id_user');
+        return $this->belongsTo(User::class, 'id_user', 'id');
     }
 
     public function detail()
     {
-        return $this->hasOne(PenjualanDetail::class, 'id_penjualan_detail', 'id_penjualan_detail');
+        return $this->hasMany(PenjualanDetail::class, 'id_penjualan', 'id_penjualan');
     }
 
+    /** Transaksi yang benar-benar dibayar (aplikasi lama menyisakan draft tanpa metode). */
+    public function scopeValid($query)
+    {
+        return $query->whereNotNull('penjualan.metode')->where('penjualan.metode', '<>', '');
+    }
+
+    public function getNomorAttribute()
+    {
+        return 'TRX-' . str_pad($this->id_penjualan, 6, '0', STR_PAD_LEFT);
+    }
 }

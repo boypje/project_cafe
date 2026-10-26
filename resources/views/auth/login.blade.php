@@ -1,53 +1,65 @@
-@extends('layouts.auth')
+@extends('layouts.base')
 
-@section('login')
-<div class="login-box">
+@section('title', 'Masuk')
 
-    <!-- /.login-logo -->
-    <div class="login-box-body">
-        <div class="login-logo">
-            <a href="{{ url('/') }}">
-                <img src="{{ asset('img/altari.png') }}" alt="altari.png" width="100">
-            </a>
+@section('body')
+<main id="konten" class="grid min-h-full lg:grid-cols-2">
+    <section class="relative hidden overflow-hidden bg-ink-900 p-12 text-white lg:flex lg:flex-col lg:justify-between" aria-hidden="true">
+        <div class="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-600/30 blur-3xl"></div>
+        <div class="absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-brand-400/10 blur-3xl"></div>
+        <p class="relative font-display text-3xl font-bold text-brand-200">{{ $namaToko ?? 'Altari' }}</p>
+        <div class="relative max-w-md">
+            <p class="font-display text-4xl font-semibold leading-tight">Kasir cepat, stok rapi, laporan jelas.</p>
+            <p class="mt-4 text-ink-300">Satu aplikasi untuk mencatat pesanan, memantau bahan, dan membaca kinerja usaha setiap hari.</p>
         </div>
+        <p class="relative text-sm text-ink-400">&copy; {{ date('Y') }} {{ $namaToko ?? 'Altari' }}</p>
+    </section>
 
-        <form action="{{ route('login') }}" method="post" class="form-login">
-            @csrf
-            <div class="form-group has-feedback @error('email') has-error @enderror">
-                <input type="email" name="email" class="form-control" placeholder="Email" required value="{{ old('email') }}" autofocus>
-                <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-                @error('email')
-                    <span class="help-block">{{ $message }}</span>
-                @else
-                <span class="help-block with-errors"></span>
-                @enderror
-            </div>
-            <div class="form-group has-feedback @error('password') has-error @enderror">
-                <input type="password" name="password" class="form-control" placeholder="Password" required>
-                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-                @error('password')
-                    <span class="help-block">{{ $message }}</span>
-                @else
-                    <span class="help-block with-errors"></span>
-                @enderror
-            </div>
-            <div class="row">
-                <div class="col-xs-8">
-                    <div class="checkbox icheck">
-                        <label>
-                            <input type="checkbox"> Remember Me
-                        </label>
+    <section class="flex items-center justify-center px-6 py-12">
+        <div class="w-full max-w-sm">
+            <p class="mb-8 font-display text-3xl font-bold text-brand-700 lg:hidden">{{ $namaToko ?? 'Altari' }}</p>
+            <h1 class="font-display text-3xl font-bold">Selamat datang</h1>
+            <p class="mt-2 text-sm text-ink-500">Masuk untuk mulai melayani pelanggan.</p>
+
+            @if (session('status'))
+                <div class="mt-6 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{{ session('status') }}</div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" class="mt-8 space-y-5" data-turbo="false" x-data="{ lihat: false, kirim: false }" @submit="kirim = true">
+                @csrf
+                <div>
+                    <label for="email" class="label">Email</label>
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
+                           class="input @error('email') input-error @enderror" placeholder="nama@altari"
+                           @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
+                    @error('email')
+                        <p id="email-error" class="error-text">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="password" class="label">Password</label>
+                    <div class="relative">
+                        <input id="password" :type="lihat ? 'text' : 'password'" type="password" name="password" required autocomplete="current-password"
+                               class="input pr-12 @error('password') input-error @enderror">
+                        <button type="button" class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-ink-400 hover:text-ink-700"
+                                @click="lihat = !lihat" :aria-label="lihat ? 'Sembunyikan password' : 'Tampilkan password'" :aria-pressed="lihat.toString()">
+                            <x-icon name="eye" class="h-5 w-5" />
+                        </button>
                     </div>
+                    @error('password')
+                        <p class="error-text">{{ $message }}</p>
+                    @enderror
                 </div>
-                <!-- /.col -->
-                <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
-                </div>
-                <!-- /.col -->
-            </div>
-        </form>
-    </div>
-    <!-- /.login-box-body -->
-</div>
-<!-- /.login-box -->
+                <label class="flex items-center gap-2 text-sm text-ink-600">
+                    <input type="checkbox" name="remember" class="rounded border-ink-300 text-brand-600 focus:ring-brand-500">
+                    Ingat saya di perangkat ini
+                </label>
+                <button type="submit" class="btn-primary w-full py-3" :disabled="kirim">
+                    <span x-text="kirim ? 'Memproses…' : 'Masuk'">Masuk</span>
+                    <x-icon name="arrow-right" class="h-4 w-4" />
+                </button>
+            </form>
+        </div>
+    </section>
+</main>
 @endsection
